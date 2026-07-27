@@ -158,7 +158,7 @@
     <div class="sep"></div>
     <div class="group" data-sheet="stamp"><span class="lbl">Stamp</span>
       <button class="tool" data-tool="stamp" title="Stamp — click to place a shape">⭐</button>
-      <select id="stampShape" title="Stamp shape"><option>★</option><option>●</option><option>♥</option><option>✦</option><option value="moonC">🌙</option><option value="moonF">🌕</option><option value="moonN">🌑</option><option value="dart">🛩</option></select>
+      <select id="stampShape" title="Stamp shape"><option>★</option><option>●</option><option>♥</option><option>✦</option><option value="moonC">🌙</option><option value="moonF">🌕</option><option value="moonN">🌑</option><option value="dart">🛩</option><option value="bulb">💡</option></select>
     </div>
     <div class="sep"></div>
     <div class="group" data-sheet="stamp"><span class="lbl">Shape</span>
@@ -344,7 +344,8 @@
   const MOONF="M0 -1 A1 1 0 1 1 0 1 A1 1 0 1 1 0 -1 Z";                                              // full disc
   const MOONN="M0 -1 A1 1 0 1 1 0 1 A1 1 0 1 1 0 -1 Z M0 -0.68 A0.68 0.68 0 1 1 0 0.68 A0.68 0.68 0 1 1 0 -0.68 Z"; // new — a ring (needs even-odd fill)
   const DART="M1 0 L-0.9 -0.72 L-0.28 0 L-0.9 0.72 Z";                                              // paper dart
-  const STAMP={ "★":STAR, "✦":SPARK, "♥":HEART, moonC:MOONC, moonF:MOONF, moonN:MOONN, dart:DART };
+  const BULB="M-0.24 0.60 L-0.24 0.42 L-0.30 0.30 C-0.62 0.05 -0.62 -0.45 -0.30 -0.70 C-0.10 -0.86 0.10 -0.86 0.30 -0.70 C0.62 -0.45 0.62 0.05 0.30 0.30 L0.24 0.42 L0.24 0.60 Q0.24 0.72 0.12 0.72 L-0.12 0.72 Q-0.24 0.72 -0.24 0.60 Z"; // light-bulb / idea
+  const STAMP={ "★":STAR, "✦":SPARK, "♥":HEART, moonC:MOONC, moonF:MOONF, moonN:MOONN, dart:DART, bulb:BULB };
 
   let tool="pen", color="#8b7cf6", width=6, themeName="Aurora", wiggle=false, twinkle=false;
   let drawing=false, current=null, points=[], undone=[], nContrib=0;
