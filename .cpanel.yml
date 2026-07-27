@@ -11,5 +11,7 @@ deployment:
   tasks:
     - export DEPLOYPATH="$HOME/nft.gift/"
     - /bin/cp index.html "$DEPLOYPATH"            # landing
-    - /bin/cp -R make "$DEPLOYPATH"               # the card editor  → nft.gift/make/
-    - /bin/cp -R help "$DEPLOYPATH"               # help document    → nft.gift/help/
+    - /bin/cp -R make "$DEPLOYPATH"               # the card editor   → nft.gift/make/
+    - /bin/cp -R help "$DEPLOYPATH"               # help document     → nft.gift/help/
+    - /bin/cp -R immortalize "$DEPLOYPATH"        # own/send (soon)    → nft.gift/immortalize/
+    - /bin/cp -R chat "$DEPLOYPATH"               # private chat (soon)→ nft.gift/chat/
