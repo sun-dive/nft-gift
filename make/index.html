@@ -25,6 +25,9 @@
   .stat{font:12px/1.4 ui-monospace,Menlo,monospace;color:var(--dim);margin-left:auto}
   .stat b{color:var(--ink)} .stat .seal{color:var(--accent2)} .stat .price b{color:var(--accent2)}
   .card-hide{display:none!important}  /* tools trimmed from the card maker (kept in the Draw tool for the multiverse) */
+  #textInput{position:fixed;display:none;z-index:60;transform:translate(-50%,-50%);min-width:120px;max-width:82vw;
+    padding:6px 12px;border:2px solid var(--accent);border-radius:9px;background:var(--panel);color:var(--ink);
+    font:600 22px var(--font);text-align:center;outline:none;box-shadow:0 8px 26px rgba(0,0,0,.35)}
   button.tool,select,button.act{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);padding:7px 9px;font-size:14px;cursor:pointer;line-height:1}
   button.tool{min-width:36px}
   button.tool.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,var(--panel2));color:#fff}
@@ -70,20 +73,21 @@
       transform:translateY(115%);transition:transform .22s cubic-bezier(.2,.9,.3,1);visibility:hidden}
     body[data-sheet="save"] footer{transform:none;visibility:visible}
     body[data-sheet="brush"] .toolbar,body[data-sheet="stamp"] .toolbar,
-    body[data-sheet="fx"] .toolbar,body[data-sheet="colour"] .toolbar{transform:none;visibility:visible}
+    body[data-sheet="fx"] .toolbar,body[data-sheet="colour"] .toolbar,body[data-sheet="text"] .toolbar{transform:none;visibility:visible}
     .toolbar .sep,.toolbar .stat{display:none}
     .toolbar .group{display:none;width:100%}
     .toolbar .group .lbl{display:block;width:100%;margin-bottom:2px;font-size:12px}
     body[data-sheet="brush"]  .group[data-sheet="brush"],
     body[data-sheet="stamp"]  .group[data-sheet="stamp"],
     body[data-sheet="fx"]     .group[data-sheet="fx"],
+    body[data-sheet="text"]   .group[data-sheet="text"],
     body[data-sheet="colour"] .group[data-sheet="colour"]{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
     footer .ledger,footer .spacer{display:none}
     footer button.act,footer select{flex:0 0 auto}
     /* tap-away backdrop (closes the open sheet) */
     #sheetBackdrop{display:none}
     body[data-sheet="brush"] #sheetBackdrop,body[data-sheet="stamp"] #sheetBackdrop,body[data-sheet="fx"] #sheetBackdrop,
-    body[data-sheet="colour"] #sheetBackdrop,body[data-sheet="save"] #sheetBackdrop{display:block;position:fixed;inset:0 0 64px 0;z-index:35;background:transparent}
+    body[data-sheet="colour"] #sheetBackdrop,body[data-sheet="save"] #sheetBackdrop,body[data-sheet="text"] #sheetBackdrop{display:block;position:fixed;inset:0 0 64px 0;z-index:35;background:transparent}
     /* the bottom bar */
     .mobar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;height:64px;background:var(--panel);
       border-top:2px solid var(--line);box-shadow:0 -6px 18px rgba(0,0,0,.2)}
@@ -144,6 +148,18 @@
       <button class="tool" data-tool="line" title="Line">╱</button>
       <button class="tool" data-tool="rect" title="Rectangle">▭</button>
       <button class="tool" data-tool="ellipse" title="Ellipse">◯</button>
+    </div>
+    <div class="sep"></div>
+    <div class="group" data-sheet="text"><span class="lbl">Text</span>
+      <button class="tool" data-tool="text" title="Text — tap the card, then type your message">🅣</button>
+      <select id="fontFace" title="Font">
+        <option value="round">Aa · Rounded</option>
+        <option value="fun">Aa · Fun</option>
+        <option value="hand">Aa · Handwriting</option>
+        <option value="serif">Aa · Classic</option>
+        <option value="bold">Aa · Bold</option>
+        <option value="type">Aa · Typewriter</option>
+      </select>
     </div>
     <div class="sep"></div>
     <div class="group" style="position:relative" data-sheet="fx">
@@ -233,6 +249,7 @@
   <!-- mobile-only bottom tool bar → opens slide-up sheets (the tool groups above) -->
   <nav class="mobar" aria-label="Card tools">
     <button class="mb" data-sheet="brush"><b>🖌️</b>Draw</button>
+    <button class="mb" data-sheet="text"><b>✍️</b>Text</button>
     <button class="mb" data-sheet="stamp"><b>⭐</b>Stamp</button>
     <button class="mb" data-sheet="fx"><b>✨</b>Fun</button>
     <button class="mb" data-sheet="colour"><b>🎨</b>Colour</button>
@@ -241,6 +258,7 @@
     <button class="mb" data-sheet="save"><b>⬇</b>Save</button>
   </nav>
   <div id="sheetBackdrop"></div>
+  <input id="textInput" type="text" placeholder="Type…" spellcheck="false" autocomplete="off" autocapitalize="sentences">
 
 <script>
 (() => {
@@ -403,9 +421,32 @@
     active.appendChild(g); return g; };
 
   // ── Drawing / pan pointer handlers ──
+  // ── Text tool: tap the card → a little input appears → type → placed as SVG text (current colour + chosen font) ──
+  const FONTS={ round:'"Trebuchet MS","Segoe UI",system-ui,sans-serif', fun:'"Comic Sans MS","Chalkboard SE","Comic Neue",cursive',
+    hand:'"Bradley Hand","Brush Script MT","Segoe Script",cursive', serif:'Georgia,"Times New Roman",serif',
+    bold:'Impact,"Arial Black",system-ui,sans-serif', type:'"Courier New",ui-monospace,monospace' };
+  const fontKey=()=>($("fontFace")?$("fontFace").value:"round");
+  const fontStack=()=>FONTS[fontKey()]||FONTS.round;
+  let textPt=null;
+  const startText=(e,p)=>{ textPt=p; const ti=$("textInput"); ti.value=""; ti.style.display="block";
+    ti.style.left=e.clientX+"px"; ti.style.top=e.clientY+"px"; ti.style.color=color; ti.style.fontFamily=fontStack();
+    setTimeout(()=>ti.focus(),0); };
+  const placeText=()=>{ const ti=$("textInput"), val=ti.value.trim(); ti.style.display="none";
+    if(!val||!textPt){ textPt=null; return; }
+    const fs=Math.max(24,Math.round(width*8)), t=document.createElementNS(SVGNS,"text");
+    t.setAttribute("x",textPt.x.toFixed(1)); t.setAttribute("y",textPt.y.toFixed(1)); t.setAttribute("fill",color);
+    t.setAttribute("font-family",fontStack()); t.setAttribute("font-size",fs); t.setAttribute("text-anchor","middle"); t.setAttribute("dominant-baseline","middle");
+    t.textContent=val; if(wiggle) t.setAttribute("filter","url(#sprayBoil)"); active.appendChild(t);
+    if(twinkle) applyTwinkle(t);
+    setRec(t,{k:"text",txt:val,col:color,fs,font:fontKey(),x:+textPt.x.toFixed(1),y:+textPt.y.toFixed(1),wig:wiggle?1:0,twk:twinkle?1:0});
+    undone=[]; textPt=null; save(); refresh(); };
+  $("textInput").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); placeText(); } else if(e.key==="Escape"){ e.preventDefault(); $("textInput").style.display="none"; textPt=null; } };
+  $("textInput").onblur=()=>placeText();
+
   const start=e=>{ e.preventDefault();
     if(tool==="pan"){ panning=true; const r=svg.getBoundingClientRect(); ps={x:e.clientX,y:e.clientY,px:panX,py:panY,scale:(CW/zoom)/r.width}; svg.setPointerCapture(e.pointerId); return; }
     const p=toSvg(e);
+    if(tool==="text"){ startText(e,p); return; }
     if(tool==="stamp"){ svg.setPointerCapture(e.pointerId); drawing=true; undone=[]; points=[p]; current=makeStamp(p); refresh(); return; }
     svg.setPointerCapture(e.pointerId); drawing=true; undone=[]; points=[p];
     if(tool==="spray"){ current=document.createElementNS(SVGNS,"g"); const seed=(Math.random()*4294967296)>>>0; current._seed=seed; sprayRng=mulberry32(seed); if(wiggle) current.setAttribute("filter","url(#sprayBoil)"); active.appendChild(current); sprayAt(p); refresh(); return; }
