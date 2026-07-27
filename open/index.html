@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Your card · nft.gift</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='84'>💌</text></svg>">
+<style>
+  :root{--paper:#efe4cd;--card:#fff7e6;--line:#e0d2b2;--ink:#2b2118;--dim:#8a7a5f;--coral:#ff5a5f;--gold:#f0a316;--mint:#2bb673;--font:"Trebuchet MS","Segoe UI",system-ui,sans-serif}
+  @media (prefers-color-scheme:dark){:root{--paper:#211b12;--card:#2b2418;--line:#4a3d28;--ink:#f6ecd8;--dim:#b6a483;--coral:#ff7a7e;--gold:#ffc24d;--mint:#4bd492}}
+  :root[data-theme="light"]{--paper:#efe4cd;--card:#fff7e6;--line:#e0d2b2;--ink:#2b2118;--dim:#8a7a5f;--coral:#ff5a5f;--gold:#f0a316;--mint:#2bb673}
+  :root[data-theme="dark"]{--paper:#211b12;--card:#2b2418;--line:#4a3d28;--ink:#f6ecd8;--dim:#b6a483;--coral:#ff7a7e;--gold:#ffc24d;--mint:#4bd492}
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:var(--font);color:var(--ink);background:var(--paper);display:flex;flex-direction:column;min-height:100%;
+    background-image:radial-gradient(color-mix(in srgb,var(--line) 70%,transparent) .9px,transparent .9px);background-size:22px 22px}
+  header{display:flex;align-items:center;justify-content:space-between;padding:14px clamp(14px,5vw,40px)}
+  .logo{font-weight:800;font-size:20px;text-decoration:none;color:inherit} .logo b{color:var(--coral)}
+  header a.mk{text-decoration:none;color:#fff;font-weight:800;font-size:14px;padding:8px 14px;border-radius:11px;background:var(--coral);border:2px solid color-mix(in srgb,var(--coral) 60%,#000)}
+  main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 16px 24px;min-height:0}
+
+  /* dropzone */
+  .drop{max-width:460px;text-align:center;border:3px dashed var(--line);border-radius:22px;padding:44px 28px;background:var(--card);cursor:pointer;transition:border-color .15s,transform .15s}
+  .drop:hover,.drop.over{border-color:var(--coral);transform:translateY(-2px)}
+  .drop .big{font-size:54px;animation:bob 3.5s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(4deg)}}
+  .drop h1{font-size:26px;margin:14px 0 6px} .drop p{color:var(--dim);margin:0}
+  .err{color:var(--coral);font-weight:700;margin-top:12px;min-height:1em}
+
+  /* the folding card */
+  .stage{perspective:2000px;display:flex;align-items:center;justify-content:center;width:100%;flex:1;min-height:0}
+  .book{position:relative;aspect-ratio:3/4;height:min(72vh,116vw);transform-style:preserve-3d;transition:transform .9s cubic-bezier(.3,.7,.25,1)}
+  .book.open{transform:translateX(26%)}
+  .leaf,.cover{position:absolute;inset:0;border-radius:9px;overflow:hidden;box-shadow:0 16px 46px rgba(0,0,0,.32)}
+  .cover{transform-origin:left center;transform-style:preserve-3d;transition:transform .95s cubic-bezier(.3,.7,.25,1);cursor:pointer}
+  .book.open .cover{transform:rotateY(-160deg)}
+  .cover .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:9px;overflow:hidden}
+  .cf-back{transform:rotateY(180deg);background:#fdfbf4}
+  .psvg{width:100%;height:100%;display:block}
+  .tap-hint{position:absolute;left:50%;bottom:-38px;transform:translateX(-50%);white-space:nowrap;color:var(--dim);font-weight:700;font-size:14px;pointer-events:none}
+
+  /* back view */
+  .backwrap{display:none;flex-direction:column;align-items:center;gap:18px}
+  .backwrap.show{display:flex}
+  .backleaf{aspect-ratio:3/4;height:min(62vh,100vw);border-radius:9px;overflow:hidden;box-shadow:0 16px 46px rgba(0,0,0,.32)}
+
+  .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:30px}
+  .btn{text-decoration:none;font-weight:800;font-size:15px;padding:11px 20px;border-radius:14px;border:2.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+  .btn:hover{transform:translateY(-2px)}
+  .btn.primary{background:var(--coral);color:#fff;border-color:color-mix(in srgb,var(--coral) 60%,#000);box-shadow:0 4px 0 color-mix(in srgb,var(--coral) 55%,#000)}
+  footer{padding:16px;text-align:center;color:var(--dim);font-size:13px;border-top:2px dashed var(--line)}
+  footer a{color:var(--dim)}
+  [hidden]{display:none!important}
+  @media (prefers-reduced-motion:reduce){.book,.cover,.drop .big{transition:none;animation:none}}
+</style>
+</head>
+<body>
+  <header>
+    <a class="logo" href="../">🎁 nft<b>.gift</b></a>
+    <a class="mk" href="../make/">🖍️ Make one</a>
+  </header>
+
+  <main>
+    <!-- 1) pick a card -->
+    <label class="drop" id="drop">
+      <div class="big">💌</div>
+      <h1>Open your card</h1>
+      <p>Tap to choose your <b>card.svg</b> file — or drag it here.</p>
+      <p class="err" id="err"></p>
+      <input id="file" type="file" accept=".svg,image/svg+xml" hidden>
+    </label>
+
+    <!-- 2) the folding card -->
+    <div id="viewer" hidden>
+      <div class="stage" id="stage">
+        <div class="book" id="book">
+          <div class="leaf" id="pInside"></div>
+          <div class="cover" id="cover">
+            <div class="face cf-front" id="pFront"></div>
+            <div class="face cf-back"></div>
+          </div>
+          <div class="tap-hint" id="hint">👆 tap the card to open</div>
+        </div>
+      </div>
+      <div class="backwrap" id="backwrap"><div class="backleaf" id="pBack"></div></div>
+      <div class="controls">
+        <button class="btn" id="flipBtn">🔄 See the back</button>
+        <a class="btn primary" href="../make/">✨ Make your own →</a>
+      </div>
+    </div>
+  </main>
+
+  <footer>made with 💛 on <a href="../">nft.gift</a> · <a href="../make/">make your own</a></footer>
+
+  <svg id="cardDefs" width="0" height="0" style="position:absolute" aria-hidden="true"></svg>
+<script>
+(() => {
+  const SVGNS="http://www.w3.org/2000/svg", $=id=>document.getElementById(id);
+  const PAGEI={front:0,inside:1,back:2};
+  const showErr=m=>{ $("err").textContent=m||""; };
+
+  const pageSvg=(g,role)=>{ const i=PAGEI[role]||0;
+    const s=document.createElementNS(SVGNS,"svg"); s.setAttribute("viewBox",`${i*750} 0 750 1000`);
+    s.setAttribute("class","psvg"); s.setAttribute("preserveAspectRatio","xMidYMid meet");
+    if(g) s.appendChild(document.importNode(g,true)); else { const r=document.createElementNS(SVGNS,"rect"); r.setAttribute("x",i*750); r.setAttribute("width",750); r.setAttribute("height",1000); r.setAttribute("fill","#fdfbf4"); s.appendChild(r); }
+    return s; };
+
+  function render(svgText){
+    let doc; try{ doc=new DOMParser().parseFromString(svgText,"image/svg+xml"); }catch(_){ return showErr("Couldn't read that file."); }
+    const root=doc.documentElement;
+    if(!root || root.nodeName.toLowerCase()!=="svg" || doc.querySelector("parsererror")) return showErr("That doesn't look like a card file. 💭");
+    // fonts (a <style> at the card root) → apply document-wide
+    const style=root.querySelector("style"); if(style){ const s=document.createElement("style"); s.textContent=style.textContent; document.head.appendChild(s); }
+    // defs (#mcyc, #sprayBoil, #crease …) → shared hidden svg so url(#…) resolves
+    const defs=root.querySelector("defs"); const shared=$("cardDefs"); shared.innerHTML=""; if(defs) shared.appendChild(document.importNode(defs,true));
+    // pages
+    const pages={}; root.querySelectorAll("[data-page]").forEach(g=>{ pages[g.getAttribute("data-page")]=g; });
+    if(!pages.front && !pages.inside && !pages.back) return showErr("No card pages found in that file.");
+    $("pFront").replaceChildren(pageSvg(pages.front,"front"));
+    $("pInside").replaceChildren(pageSvg(pages.inside,"inside"));
+    $("pBack").replaceChildren(pageSvg(pages.back,"back"));
+    // show it
+    showErr(""); $("drop").hidden=true; $("viewer").hidden=false;
+    $("book").classList.remove("open"); $("backwrap").classList.remove("show"); $("hint").hidden=false;
+  }
+
+  const readFile=f=>{ if(!f) return; const rd=new FileReader(); rd.onload=()=>render(String(rd.result)); rd.onerror=()=>showErr("Couldn't read that file."); rd.readAsText(f); };
+
+  // pick / drag-drop
+  $("file").onchange=e=>readFile(e.target.files&&e.target.files[0]);
+  const drop=$("drop");
+  ["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{ e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{ e.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop",e=>{ const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; readFile(f); });
+
+  // open / close the card
+  $("cover").onclick=()=>{ const b=$("book"); b.classList.toggle("open"); $("hint").textContent = b.classList.contains("open") ? "👆 tap to close" : "👆 tap the card to open"; };
+  // flip to the back
+  $("flipBtn").onclick=()=>{ const bw=$("backwrap"), on=bw.classList.toggle("show"); $("stage").hidden=on; $("flipBtn").textContent = on ? "↩ Back to the card" : "🔄 See the back"; };
+
+  // optional ?card=<url> (same-origin hosted / future gift-links)
+  const q=new URLSearchParams(location.search).get("card");
+  if(q){ fetch(q).then(r=>r.text()).then(render).catch(()=>showErr("Couldn't load that card link.")); }
+})();
+</script>
+</body>
+</html>
