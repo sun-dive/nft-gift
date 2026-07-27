@@ -3,29 +3,60 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,follow">
 <title>Immortalize · nft.gift</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='84'>🎁</text></svg>">
 <style>
-  :root{--paper:#efe4cd;--card:#fff7e6;--line:#e0d2b2;--ink:#2b2118;--dim:#8a7a5f;--coral:#ff5a5f;--gold:#f0a316;--mint:#2bb673;--font:"Trebuchet MS","Segoe UI",system-ui,sans-serif}
-  @media (prefers-color-scheme:dark){:root{--paper:#211b12;--card:#2b2418;--line:#4a3d28;--ink:#f6ecd8;--dim:#b6a483;--coral:#ff7a7e;--gold:#ffc24d;--mint:#4bd492}}
-  :root[data-theme="light"]{--paper:#efe4cd;--card:#fff7e6;--line:#e0d2b2;--ink:#2b2118;--dim:#8a7a5f;--coral:#ff5a5f;--gold:#f0a316;--mint:#2bb673}
-  :root[data-theme="dark"]{--paper:#211b12;--card:#2b2418;--line:#4a3d28;--ink:#f6ecd8;--dim:#b6a483;--coral:#ff7a7e;--gold:#ffc24d;--mint:#4bd492}
+  :root{--paper:#efe4cd;--card:#fff7e6;--card2:#fffdf8;--line:#e0d2b2;--ink:#2b2118;--dim:#8a7a5f;--coral:#ff5a5f;--gold:#f0a316;--mint:#2bb673;--font:"Trebuchet MS","Segoe UI",system-ui,sans-serif}
+  @media (prefers-color-scheme:dark){:root{--paper:#211b12;--card:#2b2418;--card2:#332a1c;--line:#4a3d28;--ink:#f6ecd8;--dim:#b6a483;--coral:#ff7a7e;--gold:#ffc24d;--mint:#4bd492}}
+  :root[data-theme="light"]{--paper:#efe4cd;--card:#fff7e6;--card2:#fffdf8;--line:#e0d2b2;--ink:#2b2118;--dim:#8a7a5f;--coral:#ff5a5f;--gold:#f0a316;--mint:#2bb673}
+  :root[data-theme="dark"]{--paper:#211b12;--card:#2b2418;--card2:#332a1c;--line:#4a3d28;--ink:#f6ecd8;--dim:#b6a483;--coral:#ff7a7e;--gold:#ffc24d;--mint:#4bd492}
   *{box-sizing:border-box}
-  body{margin:0;font-family:var(--font);color:var(--ink);background:var(--paper);line-height:1.6;min-height:100vh;
+  body{margin:0;font-family:var(--font);color:var(--ink);background:var(--paper);line-height:1.55;min-height:100vh;
     background-image:radial-gradient(color-mix(in srgb,var(--line) 70%,transparent) .9px,transparent .9px);background-size:22px 22px}
   header{display:flex;align-items:center;justify-content:space-between;padding:16px clamp(16px,5vw,44px)}
-  .logo{font-weight:800;font-size:22px;text-decoration:none} .logo b{color:var(--coral)}
+  .logo{font-weight:800;font-size:22px;text-decoration:none;color:inherit} .logo b{color:var(--coral)}
   header a.mk{text-decoration:none;color:#fff;font-weight:800;font-size:15px;padding:9px 16px;border-radius:12px;background:var(--coral);border:2px solid color-mix(in srgb,var(--coral) 60%,#000)}
-  main{max-width:560px;margin:0 auto;padding:min(12vh,90px) clamp(16px,5vw,44px) 60px;text-align:center}
-  .badge{display:inline-block;background:var(--gold);color:#3a2a06;font-weight:800;font-size:14px;padding:6px 14px;border-radius:99px;transform:rotate(-2deg);animation:tw 2.2s ease-in-out infinite}
-  @keyframes tw{0%,100%{opacity:.8;transform:rotate(-2deg) scale(1)}50%{opacity:1;transform:rotate(-2deg) scale(1.05)}}
-  h1{font-size:clamp(40px,9vw,60px);margin:18px 0 10px;letter-spacing:-.02em}
-  p{font-size:19px;color:var(--ink);max-width:34ch;margin:0 auto 22px} b{color:var(--mint)}
-  .cta{display:inline-flex;gap:9px;align-items:center;text-decoration:none;font-weight:800;font-size:18px;color:#fff;background:var(--coral);
-    border:2.5px solid color-mix(in srgb,var(--coral) 60%,#000);border-radius:16px;padding:14px 26px;box-shadow:0 5px 0 color-mix(in srgb,var(--coral) 55%,#000)}
-  .cta:hover{transform:translateY(-2px) rotate(-1.5deg)}
-  .back{margin-top:22px;font-size:15px} .back a{color:var(--dim)}
-  @media (prefers-reduced-motion:reduce){.badge{animation:none}}
+  main{max-width:520px;margin:0 auto;padding:clamp(12px,5vw,40px) clamp(16px,5vw,44px) 70px}
+  .screen{display:none} .screen.on{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  .box{background:var(--card);border:2.5px solid var(--line);border-radius:22px;padding:clamp(20px,5vw,32px);box-shadow:0 14px 40px rgba(0,0,0,.10)}
+  .hero-emoji{font-size:52px;line-height:1;animation:bob 4s ease-in-out infinite} @keyframes bob{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-7px) rotate(4deg)}}
+  h1{font-size:clamp(30px,7vw,42px);margin:12px 0 8px;letter-spacing:-.02em;text-wrap:balance}
+  h2{font-size:22px;margin:0 0 6px} p{font-size:16.5px;color:var(--ink);margin:0 0 16px} .dim{color:var(--dim)}
+  .center{text-align:center}
+  .btn{display:inline-flex;justify-content:center;align-items:center;gap:9px;width:100%;text-decoration:none;font-family:inherit;font-weight:800;font-size:17px;
+    padding:14px 22px;border-radius:15px;border:2.5px solid var(--line);background:var(--card2);color:var(--ink);cursor:pointer;transition:transform .12s}
+  .btn:hover{transform:translateY(-2px)} .btn:active{transform:translateY(1px)} .btn+.btn{margin-top:11px}
+  .btn.primary{background:var(--coral);color:#fff;border-color:color-mix(in srgb,var(--coral) 60%,#000);box-shadow:0 5px 0 color-mix(in srgb,var(--coral) 55%,#000)}
+  .btn.primary:active{box-shadow:0 2px 0 color-mix(in srgb,var(--coral) 55%,#000)}
+  .btn.gold{background:var(--gold);color:#3a2a06;border-color:color-mix(in srgb,var(--gold) 60%,#000)}
+  .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+  .btn.sm{width:auto;font-size:14.5px;padding:9px 15px;border-radius:12px}
+  label{display:block;font-weight:700;font-size:14px;margin:14px 0 5px}
+  input,textarea{width:100%;font-family:inherit;font-size:16px;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:var(--card2);color:var(--ink);outline:none}
+  input:focus,textarea:focus{border-color:var(--coral)}
+  textarea{resize:vertical;min-height:84px;line-height:1.7}
+  .words{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:6px 0 4px}
+  @media(min-width:440px){.words{grid-template-columns:repeat(3,1fr)}}
+  .word{display:flex;align-items:baseline;gap:7px;background:var(--card2);border:2px solid var(--line);border-radius:11px;padding:9px 11px;font-size:16px;font-weight:700}
+  .word i{color:var(--dim);font-style:normal;font-size:12px;font-weight:700;min-width:16px;text-align:right}
+  .note{display:flex;gap:10px;align-items:flex-start;background:color-mix(in srgb,var(--gold) 14%,var(--card2));border:2px solid color-mix(in srgb,var(--gold) 45%,var(--line));
+    border-radius:13px;padding:12px 14px;font-size:14px;margin:4px 0 14px;text-align:left}
+  .note.lock{background:color-mix(in srgb,var(--mint) 12%,var(--card2));border-color:color-mix(in srgb,var(--mint) 40%,var(--line))}
+  .chk{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;font-weight:700;margin:14px 0 4px;cursor:pointer;text-align:left}
+  .chk input{width:20px;height:20px;flex:0 0 auto;margin-top:1px;accent-color:var(--coral)}
+  .addr{font-family:ui-monospace,Menlo,monospace;font-size:14px;word-break:break-all;background:var(--card2);border:2px dashed var(--line);border-radius:12px;padding:12px 14px;margin:4px 0 12px}
+  .qr{width:172px;height:172px;margin:8px auto 4px;background:#fff;border-radius:14px;padding:9px;border:2px solid var(--line)} .qr svg{width:100%;height:100%;display:block}
+  .bal{font-size:38px;font-weight:800;letter-spacing:-.02em;margin:4px 0 0} .bal small{font-size:15px;color:var(--dim);font-weight:700}
+  .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:6px}
+  .err{color:var(--coral);font-weight:700;font-size:14.5px;min-height:1.2em;margin:8px 0 0;text-align:center}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);font-weight:700;font-size:14px;
+    padding:11px 20px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none;z-index:60} .toast.on{opacity:1;transform:translateX(-50%)}
+  .back{margin-top:20px;text-align:center;font-size:15px} .back a{color:var(--dim)}
+  .steps{display:flex;justify-content:center;gap:7px;margin:14px 0 2px} .dot{width:8px;height:8px;border-radius:99px;background:var(--line)} .dot.on{background:var(--coral)}
+  [hidden]{display:none!important}
+  @media (prefers-reduced-motion:reduce){.hero-emoji,.screen.on{animation:none}}
 </style>
 </head>
 <body>
@@ -33,12 +64,196 @@
     <a class="logo" href="../">🎁 nft<b>.gift</b></a>
     <a class="mk" href="../make/">🖍️ Make a card</a>
   </header>
+
   <main>
-    <div class="badge">✨ Coming soon</div>
-    <h1>Immortalize</h1>
-    <p>Soon you'll make your card <b>immortal</b> — written onto the blockchain, truly owned forever, and sent as a private gift-link. Just 29¢. A card that never ends up in a drawer.</p>
-    <a class="cta" href="../make/">🖍️ Make a card</a>
-    <p class="back"><a href="../">← back to nft.gift</a></p>
+    <!-- LOADING -->
+    <section class="screen on" id="scLoad"><div class="box center"><div class="hero-emoji">✨</div><p class="dim" style="margin-top:14px">One moment…</p></div></section>
+
+    <!-- SETUP (no wallet on this device) -->
+    <section class="screen" id="scSetup"><div class="box center">
+      <div class="hero-emoji">🔑</div>
+      <h1>Your keepsake wallet</h1>
+      <p class="dim">A private wallet that lives on <b>this device</b> — yours alone. It's how you'll make a card <b>immortal</b> and send it. We can never see it or touch it.</p>
+      <button class="btn primary" id="btnCreate">✨ Create my wallet</button>
+      <button class="btn" id="btnToRestore">I already have a recovery phrase</button>
+      <div class="note lock" style="margin-top:18px">🔒 <span><b>Self-custody, always.</b> nft.gift never holds your keys, your phrase, or your funds. That's the whole point — it's genuinely <i>yours</i>.</span></div>
+    </div></section>
+
+    <!-- CREATE: show phrase + set PIN -->
+    <section class="screen" id="scCreate"><div class="box">
+      <div class="steps"><span class="dot on"></span><span class="dot" id="cDot2"></span></div>
+      <h2 class="center">Your recovery phrase</h2>
+      <p class="dim center">These <b>12 words</b> are the only way back into your wallet. Write them on paper, in order, and keep them somewhere safe.</p>
+      <div class="words" id="wordsOut"></div>
+      <div class="note">⚠️ <span>Don't screenshot or store these on your phone. <b>Anyone</b> with these words can open your wallet. We can't recover them for you — that's what makes it truly yours.</span></div>
+      <label class="chk"><input type="checkbox" id="cSaved"> I've written down my 12 words and kept them safe</label>
+      <label for="cPin1">Set a PIN to lock this wallet on this device</label>
+      <input id="cPin1" type="password" inputmode="numeric" autocomplete="new-password" placeholder="PIN (at least 4 characters)">
+      <label for="cPin2">Confirm your PIN</label>
+      <input id="cPin2" type="password" inputmode="numeric" autocomplete="new-password" placeholder="Type it again">
+      <div class="err" id="cErr"></div>
+      <button class="btn primary" id="btnCommit" disabled style="margin-top:8px">Create my wallet →</button>
+      <div class="back"><a href="#" id="cCancel">← cancel</a></div>
+    </div></section>
+
+    <!-- RESTORE -->
+    <section class="screen" id="scRestore"><div class="box">
+      <h2 class="center">Restore your wallet</h2>
+      <p class="dim center">Enter your <b>12-word recovery phrase</b>, in order, separated by spaces.</p>
+      <label for="rPhrase">Recovery phrase</label>
+      <textarea id="rPhrase" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="word one, word two, …"></textarea>
+      <label for="rPin1">Set a PIN for this device</label>
+      <input id="rPin1" type="password" inputmode="numeric" autocomplete="new-password" placeholder="PIN (at least 4 characters)">
+      <label for="rPin2">Confirm your PIN</label>
+      <input id="rPin2" type="password" inputmode="numeric" autocomplete="new-password" placeholder="Type it again">
+      <div class="err" id="rErr"></div>
+      <button class="btn primary" id="btnRestore" style="margin-top:8px">Restore my wallet →</button>
+      <div class="back"><a href="#" id="rCancel">← back</a></div>
+    </div></section>
+
+    <!-- LOCKED -->
+    <section class="screen" id="scLocked"><div class="box center">
+      <div class="hero-emoji">🔒</div>
+      <h2 style="margin-top:10px">Welcome back</h2>
+      <p class="dim">Enter your PIN to unlock your wallet on this device.</p>
+      <input id="uPin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="PIN" style="text-align:center;letter-spacing:.1em">
+      <div class="err" id="uErr"></div>
+      <button class="btn primary" id="btnUnlock" style="margin-top:12px">🔓 Unlock</button>
+      <div class="back"><a href="#" id="uForgot">Forgot PIN? Restore with your 12 words</a></div>
+    </div></section>
+
+    <!-- HOME (unlocked) -->
+    <section class="screen" id="scHome">
+      <div class="box center">
+        <h2 style="margin-bottom:2px">Your wallet</h2>
+        <p class="dim" style="margin-bottom:10px">Send BSV to this address to fund it.</p>
+        <div class="qr" id="qrBox"></div>
+        <div class="addr" id="addrOut" title="Tap to copy"></div>
+        <div class="row"><button class="btn sm" id="btnCopy">📋 Copy address</button></div>
+        <hr style="border:none;border-top:2px dashed var(--line);margin:20px 0">
+        <p class="dim" style="margin:0">Balance</p>
+        <div class="bal" id="balOut">…</div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn sm primary" id="btnBuy">💵 Buy BSV</button>
+          <button class="btn sm" id="btnRefresh">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="box" style="margin-top:16px">
+        <div class="note" id="backupNudge" hidden>⚠️ <span>You haven't backed up your recovery phrase yet. <a href="#" id="doBackup" style="color:inherit;font-weight:800">Back it up now →</a></span></div>
+        <div class="row" style="justify-content:space-between">
+          <button class="btn sm" id="btnBackup">🗝️ Back up phrase</button>
+          <button class="btn sm" id="btnLock">🔒 Lock wallet</button>
+        </div>
+        <div class="note lock" style="margin:14px 0 0">🔒 <span>Only you hold this. Your phrase and PIN never leave this device, and nft.gift can't see your funds. <b>Sovereignty, made gentle.</b></span></div>
+      </div>
+      <div class="back"><a href="../make/">← back to the card maker</a></div>
+    </section>
+
+    <!-- reveal-phrase overlay content reuses #scReveal -->
+    <section class="screen" id="scReveal"><div class="box">
+      <h2 class="center">Your recovery phrase</h2>
+      <p class="dim center">Write these 12 words down and keep them safe. Anyone with them can open your wallet.</p>
+      <div class="words" id="revealOut"></div>
+      <button class="btn primary" id="btnRevealDone" style="margin-top:14px">✓ I've saved them</button>
+    </div></section>
   </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="./wallet.bundle.js"></script>
+  <script>
+  (() => {
+    const $ = id => document.getElementById(id);
+    const W = window.nftWallet;
+    const screens = ["scLoad","scSetup","scCreate","scRestore","scLocked","scHome","scReveal"];
+    const show = id => screens.forEach(s => $(s).classList.toggle("on", s === id));
+    let toastT;
+    const toast = m => { const t=$("toast"); t.textContent=m; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),1900); };
+    const fmtBsv = sats => (sats/1e8).toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:8});
+
+    if (!W) { $("scLoad").innerHTML = '<div class="box center"><div class="hero-emoji">😔</div><p>The wallet couldn\'t load. Please refresh.</p></div>'; return; }
+    if (!(window.crypto && crypto.subtle)) { $("scLoad").innerHTML = '<div class="box center"><p>A secure connection (https) is needed to protect your wallet. Please open this page over https.</p></div>'; return; }
+
+    const wordsGrid = (host, phrase) => { host.innerHTML=""; phrase.split(" ").forEach((w,i)=>{ const d=document.createElement("div"); d.className="word"; d.innerHTML='<i>'+(i+1)+'</i>'; d.appendChild(document.createTextNode(w)); host.appendChild(d); }); };
+
+    // ── routing on load ──
+    const boot = async () => {
+      if (!W.isSetup()) return show("scSetup");
+      return show("scLocked");           // wallet exists but session key is not in memory
+    };
+
+    // ── SETUP ──
+    $("btnCreate").onclick = () => { pendingPhrase = W.newPhrase(); wordsGrid($("wordsOut"), pendingPhrase);
+      $("cSaved").checked=false; $("cPin1").value=""; $("cPin2").value=""; $("cErr").textContent=""; $("cDot2").classList.remove("on"); refreshCommit(); show("scCreate"); };
+    $("btnToRestore").onclick = () => { $("rPhrase").value=""; $("rPin1").value=""; $("rPin2").value=""; $("rErr").textContent=""; show("scRestore"); };
+
+    // ── CREATE ──
+    let pendingPhrase = null;
+    const refreshCommit = () => { const ok = $("cSaved").checked; $("btnCommit").disabled = !ok; $("cDot2").classList.toggle("on", ok); };
+    $("cSaved").onchange = refreshCommit;
+    $("cCancel").onclick = e => { e.preventDefault(); pendingPhrase=null; show("scSetup"); };
+    $("btnCommit").onclick = async () => {
+      const p1=$("cPin1").value, p2=$("cPin2").value; $("cErr").textContent="";
+      if (p1.length < 4) return $("cErr").textContent="Please choose a PIN of at least 4 characters.";
+      if (p1 !== p2) return $("cErr").textContent="Those PINs don't match.";
+      try { $("btnCommit").disabled=true; await W.commit(pendingPhrase, p1, true); pendingPhrase=null; toast("Wallet created 🎉"); enterHome(); }
+      catch(e){ $("cErr").textContent = e.message || "Something went wrong."; $("btnCommit").disabled=false; }
+    };
+
+    // ── RESTORE ──
+    $("rCancel").onclick = e => { e.preventDefault(); show("scSetup"); };
+    $("btnRestore").onclick = async () => {
+      const phrase=$("rPhrase").value, p1=$("rPin1").value, p2=$("rPin2").value; $("rErr").textContent="";
+      if (phrase.trim().split(/\s+/).length < 12) return $("rErr").textContent="A recovery phrase is 12 words.";
+      if (p1.length < 4) return $("rErr").textContent="Please choose a PIN of at least 4 characters.";
+      if (p1 !== p2) return $("rErr").textContent="Those PINs don't match.";
+      try { $("btnRestore").disabled=true; await W.restore(phrase, p1); toast("Wallet restored ✨"); enterHome(); }
+      catch(e){ $("rErr").textContent = e.message || "Couldn't restore that wallet."; $("btnRestore").disabled=false; }
+    };
+
+    // ── UNLOCK ──
+    const doUnlock = async () => {
+      const pin=$("uPin").value; $("uErr").textContent="";
+      if (!pin) return;
+      try { $("btnUnlock").disabled=true; await W.unlock(pin); $("uPin").value=""; enterHome(); }
+      catch(e){ $("uErr").textContent="That PIN didn't work. Try again."; $("btnUnlock").disabled=false; }
+    };
+    $("btnUnlock").onclick = doUnlock;
+    $("uPin").onkeydown = e => { if(e.key==="Enter") doUnlock(); };
+    $("uForgot").onclick = e => { e.preventDefault(); $("rPhrase").value=""; $("rPin1").value=""; $("rPin2").value=""; $("rErr").textContent=""; show("scRestore"); };
+
+    // ── HOME ──
+    const enterHome = () => {
+      const addr = W.address(); $("addrOut").textContent = addr;
+      $("qrBox").innerHTML = W.qrSvg(addr, { border:1 });
+      $("backupNudge").hidden = W.backedUp();
+      show("scHome"); loadBalance();
+    };
+    const loadBalance = async () => {
+      $("balOut").textContent = "…";
+      const b = await W.balance();
+      if (!b) { $("balOut").innerHTML = '<small>couldn\'t reach the network</small>'; return; }
+      $("balOut").innerHTML = fmtBsv(b.total) + ' <small>BSV</small>' + (b.unconfirmed ? '<br><small>('+b.unconfirmed.toLocaleString()+' sats pending)</small>' : '');
+    };
+    $("btnRefresh").onclick = loadBalance;
+    $("btnBuy").onclick = () => window.open(W.buyUrl(), "_blank", "noopener,noreferrer");
+    $("btnCopy").onclick = () => { navigator.clipboard.writeText(W.address()).then(()=>toast("Address copied 📋")).catch(()=>toast("Couldn't copy")); };
+    $("addrOut").onclick = () => $("btnCopy").onclick();
+    $("btnLock").onclick = () => { W.lock(); show("scLocked"); };
+
+    // ── BACK UP (reveal phrase behind PIN) ──
+    const reveal = async () => {
+      const pin = prompt("Enter your PIN to show your recovery phrase:");
+      if (pin == null) return;
+      try { const phrase = await W.revealPhrase(pin); wordsGrid($("revealOut"), phrase); show("scReveal"); }
+      catch(e){ toast("That PIN didn't work"); }
+    };
+    $("btnBackup").onclick = reveal;
+    $("doBackup").onclick = e => { e.preventDefault(); reveal(); };
+    $("btnRevealDone").onclick = () => { W.markBackedUp(); $("revealOut").innerHTML=""; $("backupNudge").hidden = true; show("scHome"); };
+
+    boot();
+  })();
+  </script>
 </body>
 </html>

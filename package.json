@@ -1,0 +1,16 @@
+{
+  "name": "nft-gift",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "nft.gift — the card maker. Only the immortalize/ wallet needs a build; the editor is plain static HTML/JS.",
+  "scripts": {
+    "build:wallet": "node build-wallet.mjs"
+  },
+  "dependencies": {
+    "@bsv/sdk": "^2.1.4"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.0"
+  }
+}
