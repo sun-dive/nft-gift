@@ -175,6 +175,9 @@
         <option value="none">▫️ Plain</option>
       </select>
     </div>
+    <div class="group" data-sheet="stamp"><span class="lbl">Arrange</span>
+      <button class="tool" data-tool="move" title="Move &amp; resize — tap anything you've placed, then drag to move it, drag its corner to resize, or tap ✕ to remove">🤚</button>
+    </div>
     <div class="sep"></div>
     <div class="group" data-sheet="text"><span class="lbl">Text</span>
       <button class="tool" data-tool="text" title="Text — tap the card, then type your message">🅣</button>
@@ -245,6 +248,7 @@
         <rect id="bg" x="0" y="0" width="750" height="1000"></rect>
         <g id="committed"></g>
         <g id="active"></g>
+        <g id="selLayer"></g><!-- Arrange tool: selection box + move/resize/delete handles (editor chrome; never saved or exported) -->
         <g id="brushCursor" pointer-events="none" opacity="0">
           <circle id="bc1" r="3" fill="none" stroke="#000" stroke-width="1.6"></circle>
           <circle id="bc2" r="3" fill="none" stroke="#fff" stroke-width="0.8"></circle>
@@ -361,6 +365,7 @@
     PANELS.forEach(([id,label])=>{ const b=document.createElement("button"); b.type="button"; b.className="ptab"+(id===panel?" on":"");
       b.textContent=label; b.onclick=()=>switchPanel(id); host.appendChild(b); }); };
   const switchPanel=p=>{ if(!panels.hasOwnProperty(p)||p===panel) return;
+    if(typeof clearSel==="function") clearSel();
     panels[panel]=active.innerHTML; panel=p; active.innerHTML=panels[panel]||""; undone=[];
     renderPanelTabs(); save(); refresh(); };
 
@@ -556,9 +561,48 @@
   $("textInput").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); placeText(); } else if(e.key==="Escape"){ e.preventDefault(); $("textInput").style.display="none"; textPt=null; } };
   $("textInput").onblur=()=>placeText();
 
+  // ── Arrange tool (move / resize / delete a placed element) ──────────────────
+  //  Every mark is a direct child of #active, so we select one, then compose a
+  //  translate+scale (about its centre) ONTO its existing transform — uniform
+  //  across text / stamps / photos / strokes. The transform saves & exports for
+  //  free (the selection chrome lives in #selLayer, which is never serialised).
+  const selLayer=$("selLayer"), SEL="#5b9dff";
+  let selEl=null, selMode=null, selBase="", selCx=0, selCy=0, selMx=0, selMy=0, selK=1;
+  let rk0=1, rd0=1, mmx0=0, mmy0=0, mp0=null;
+  const svgEl=(n,a)=>{ const el=document.createElementNS(SVGNS,n); for(const k in a) el.setAttribute(k,a[k]); return el; };
+  const topMark=t=>{ while(t && t!==svg && t.parentNode!==active) t=t.parentNode; return (t&&t.parentNode===active)?t:null; };
+  const canvasBBox=el=>{ let bb; try{ bb=el.getBBox(); }catch(_){ return null; } if(!bb || (!bb.width && !bb.height)) return null;
+    const cm=el.transform && el.transform.baseVal.consolidate(), mat=cm?cm.matrix:svg.createSVGMatrix();
+    const pts=[[bb.x,bb.y],[bb.x+bb.width,bb.y],[bb.x+bb.width,bb.y+bb.height],[bb.x,bb.y+bb.height]]
+      .map(([x,y])=>{ const q=svg.createSVGPoint(); q.x=x; q.y=y; return q.matrixTransform(mat); });
+    const xs=pts.map(p=>p.x), ys=pts.map(p=>p.y);
+    return {minx:Math.min(...xs),maxx:Math.max(...xs),miny:Math.min(...ys),maxy:Math.max(...ys)}; };
+  const clearSel=()=>{ selEl=null; selMode=null; if(selLayer) selLayer.innerHTML=""; };
+  const drawSel=()=>{ if(!selLayer) return; selLayer.innerHTML=""; if(!selEl) return; const b=canvasBBox(selEl); if(!b) return;
+    const pad=8, x=b.minx-pad, y=b.miny-pad, w=(b.maxx-b.minx)+pad*2, h=(b.maxy-b.miny)+pad*2;
+    selLayer.appendChild(svgEl("rect",{x,y,width:w,height:h,fill:"none",stroke:SEL,"stroke-width":2.5,"stroke-dasharray":"9 7","pointer-events":"none",rx:5}));
+    const hs=Math.max(18,26/zoom);                         // resize grip (bottom-right), scaled so it stays finger-sized when zoomed
+    selLayer.appendChild(svgEl("rect",{x:x+w-hs/2,y:y+h-hs/2,width:hs,height:hs,rx:5,fill:SEL,stroke:"#fff","stroke-width":2,"data-handle":"resize",cursor:"nwse-resize"}));
+    const dr=Math.max(11,16/zoom), dx=x+w, dy=y;           // delete grip (top-right ✕)
+    selLayer.appendChild(svgEl("circle",{cx:dx,cy:dy,r:dr,fill:"#ff5a5f",stroke:"#fff","stroke-width":2,"data-handle":"del",cursor:"pointer"}));
+    selLayer.appendChild(svgEl("path",{d:`M ${dx-dr*0.4} ${dy-dr*0.4} L ${dx+dr*0.4} ${dy+dr*0.4} M ${dx+dr*0.4} ${dy-dr*0.4} L ${dx-dr*0.4} ${dy+dr*0.4}`,stroke:"#fff","stroke-width":2.4,"stroke-linecap":"round","pointer-events":"none"})); };
+  const applyManip=()=>{ if(!selEl) return;
+    selEl.setAttribute("transform",`translate(${selMx.toFixed(1)} ${selMy.toFixed(1)}) translate(${selCx.toFixed(1)} ${selCy.toFixed(1)}) scale(${selK.toFixed(4)}) translate(${(-selCx).toFixed(1)} ${(-selCy).toFixed(1)}) ${selBase}`.trim()); };
+  const selectEl=el=>{ selEl=el; selBase=el.getAttribute("transform")||""; const b=canvasBBox(el);
+    if(b){ selCx=(b.minx+b.maxx)/2; selCy=(b.miny+b.maxy)/2; } else { selCx=CW/2; selCy=CH/2; }
+    selMx=0; selMy=0; selK=1; drawSel(); };
+  const startMove=(e,p)=>{ const h=e.target && e.target.getAttribute && e.target.getAttribute("data-handle");
+    if(h==="del"){ if(selEl){ selEl.remove(); clearSel(); undone=[]; save(); refresh(); } return; }
+    if(h==="resize" && selEl){ svg.setPointerCapture(e.pointerId); selMode="resize"; rk0=selK; rd0=Math.hypot(p.x-selCx,p.y-selCy)||1; return; }
+    const mark=topMark(e.target);
+    if(mark && mark.id!=="bg" && !mark.hasAttribute("data-border")){ svg.setPointerCapture(e.pointerId);
+      if(mark!==selEl) selectEl(mark); selMode="move"; mmx0=selMx; mmy0=selMy; mp0=p; }
+    else clearSel(); };
+
   const start=e=>{ e.preventDefault();
     if(tool==="pan"){ panning=true; const r=svg.getBoundingClientRect(); ps={x:e.clientX,y:e.clientY,px:panX,py:panY,scale:(CW/zoom)/r.width}; svg.setPointerCapture(e.pointerId); return; }
     const p=toSvg(e);
+    if(tool==="move"){ startMove(e,p); return; }
     if(tool==="photo"){ photoTap(p); return; }
     if(tool==="text"){ startText(e,p); return; }
     if(tool==="stamp"){ svg.setPointerCapture(e.pointerId); drawing=true; undone=[]; points=[p]; current=makeStamp(p); refresh(); return; }
@@ -575,6 +619,10 @@
     active.appendChild(current); refresh(); };
   const move=e=>{
     if(panning){ panX=ps.px-(e.clientX-ps.x)*ps.scale; panY=ps.py-(e.clientY-ps.y)*ps.scale; applyView(); return; }
+    if(tool==="move"){ if(!selMode) return; const q=toSvg(e);
+      if(selMode==="resize") selK=Math.max(0.12, rk0*(Math.hypot(q.x-selCx,q.y-selCy)/rd0));
+      else { selMx=mmx0+(q.x-mp0.x); selMy=mmy0+(q.y-mp0.y); }
+      applyManip(); drawSel(); return; }
     if(!drawing) return; const p=toSvg(e);
     if(tool==="spray"){ points.push(p); sprayAt(p); return; }
     if(tool==="stamp"){ const o=current._o, d=Math.hypot(p.x-o.x,p.y-o.y), s=Math.max(current._base,d); current._s=s; current.setAttribute("transform",`translate(${o.x} ${o.y}) scale(${s.toFixed(2)})`); return; }
@@ -597,6 +645,7 @@
     if(twinkle&&tool!=="eraser") r.twk=1;
     setRec(el,r); };
   const end=e=>{ if(panning){ panning=false; try{svg.releasePointerCapture(e.pointerId);}catch(_){} return; }
+    if(tool==="move"){ if(selMode){ selMode=null; try{svg.releasePointerCapture(e.pointerId);}catch(_){} save(); refresh(); } return; }
     if(!drawing) return; drawing=false; try{svg.releasePointerCapture(e.pointerId);}catch(_){}
     if(current&&current._o) delete current._o;
     if(wiggle && tool!=="eraser" && current && current.tagName==="path" && points.length>1) boil(current,points);
@@ -632,17 +681,17 @@
 
   // ── Brush cursor ──
   const cursor=$("brushCursor"), bc1=$("bc1"), bc2=$("bc2");
-  const showCursor=e=>{ if(tool==="pan"){ cursor.setAttribute("opacity","0"); return; } const p=toSvg(e); cursor.setAttribute("transform",`translate(${p.x} ${p.y})`);
+  const showCursor=e=>{ if(tool==="pan"||tool==="move"){ cursor.setAttribute("opacity","0"); return; } const p=toSvg(e); cursor.setAttribute("transform",`translate(${p.x} ${p.y})`);
     const r = tool==="spray" ? Math.max(6,width*2.4) : tool==="eraser" ? width : Math.max(2,(BRUSH[tool]?width*BRUSH[tool].mult:width)/2);
     bc1.setAttribute("r",r); bc2.setAttribute("r",r); cursor.setAttribute("opacity","1"); };
   svg.addEventListener("pointermove",showCursor); svg.addEventListener("pointerenter",showCursor);
   svg.addEventListener("pointerleave",()=>cursor.setAttribute("opacity","0"));
 
   // ── Undo / redo / clear / new ──
-  $("undo").onclick=()=>{ const els=[...active.children]; if(!els.length) return; undone.push(els[els.length-1]); active.removeChild(els[els.length-1]); save(); refresh(); };
+  $("undo").onclick=()=>{ clearSel(); const els=[...active.children]; if(!els.length) return; undone.push(els[els.length-1]); active.removeChild(els[els.length-1]); save(); refresh(); };
   $("redo").onclick=()=>{ const el=undone.pop(); if(el){ active.appendChild(el); save(); refresh(); } };
-  $("clearSess").onclick=()=>{ active.innerHTML=""; undone=[]; save(); refresh(); };
-  $("newCanvas").onclick=()=>{ if(!confirm("Start a fresh card? This clears all three pages on this device.")) return; panels.front=panels.inside=panels.back=""; committed.innerHTML=""; active.innerHTML=""; undone=[]; panel="front"; cardBg=null; renderPanelTabs(); save(); refresh(); };
+  $("clearSess").onclick=()=>{ clearSel(); active.innerHTML=""; undone=[]; save(); refresh(); };
+  $("newCanvas").onclick=()=>{ if(!confirm("Start a fresh card? This clears all three pages on this device.")) return; clearSel(); panels.front=panels.inside=panels.back=""; committed.innerHTML=""; active.innerHTML=""; undone=[]; panel="front"; cardBg=null; renderPanelTabs(); save(); refresh(); };
 
   // ── Commit ──
   $("commit").onclick=()=>{ if(nContrib>=CAP || !active.children.length) return;
@@ -653,7 +702,7 @@
   const rebuildLedger=()=>{ ledger.innerHTML=""; [...committed.children].forEach((g,i)=>chipFor(g,i+1)); };
 
   // ── Tools ──
-  document.querySelectorAll("button.tool[data-tool]").forEach(b=>{ b.onclick=()=>{ tool=b.dataset.tool; svg.classList.toggle("pan",tool==="pan");
+  document.querySelectorAll("button.tool[data-tool]").forEach(b=>{ b.onclick=()=>{ tool=b.dataset.tool; svg.classList.toggle("pan",tool==="pan"); clearSel();
     document.querySelectorAll("button.tool[data-tool]").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }; });
   $("wiggle").onclick=()=>{ wiggle=!wiggle; $("wiggle").classList.toggle("on",wiggle); };
   $("twinkle").onclick=()=>{ twinkle=!twinkle; $("twinkle").classList.toggle("on",twinkle); };
