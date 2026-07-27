@@ -15,6 +15,9 @@
   .appnav .tab{padding:6px 12px;border-radius:8px;color:var(--dim);text-decoration:none;font-size:13px;border:1px solid transparent}
   .appnav .tab:hover{color:var(--ink);background:var(--panel2)}
   .appnav .tab.on{color:#fff;background:color-mix(in srgb,var(--accent) 22%,var(--panel2));border-color:var(--accent)}
+  .ptab{background:none;color:var(--dim);font:700 13px var(--font);padding:6px 14px;border:1.5px solid transparent;border-radius:9px;cursor:pointer}
+  .ptab:hover{color:var(--ink);background:var(--panel2)}
+  .ptab.on{color:#fff;background:color-mix(in srgb,var(--accent) 24%,var(--panel2));border-color:var(--accent)}
   .toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;padding:9px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
   .group{display:flex;align-items:center;gap:6px}
   .group .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--dim);margin-right:2px}
@@ -202,10 +205,10 @@
   <div class="drawer" id="drawer"><pre id="svgview"></pre></div>
 
   <footer>
-    <button class="act primary" id="commit">＋ Add mark</button>
-    <button class="act" id="clearSess">Clear session</button>
-    <button class="act" id="newCanvas" title="Start a fresh canvas (clears everything)">🗑 New</button>
-    <div class="ledger" id="ledger"></div>
+    <button class="act primary card-hide" id="commit">＋ Add mark</button>
+    <button class="act" id="clearSess">🧹 Clear page</button>
+    <button class="act" id="newCanvas" title="Start a fresh card (clears all three pages)">🗑 New card</button>
+    <div class="ledger card-hide" id="ledger"></div>
     <div class="spacer"></div>
     <select id="skin" title="App look / skin">
       <option value="crayon">Skin: Crayon</option>
@@ -261,15 +264,26 @@
 
   let tool="pen", color="#8b7cf6", width=6, themeName="Aurora", wiggle=false, twinkle=false;
   let drawing=false, current=null, points=[], undone=[], nContrib=0;
+  let panel="front"; const panels={front:"",inside:"",back:""};   // the card's three pages; the current one lives in #active
   const WIG={amp:7, dur:"0.52s", calc:"discrete"};      // twiggle-able wiggle params
   const TWK={base:1.9};                                  // twinkle tempo centre (s); each mark still varies ±30% around it
   let zoom=1, panX=0, panY=0, panning=false, ps=null;   // zoom / pan
   const bgColor=()=>THEMES[themeName].bg;
 
   // ── Persistence ──
-  const save=()=>{ try{ localStorage.setItem(STORE, JSON.stringify({ t:themeName, n:nContrib, c:committed.innerHTML, a:active.innerHTML })); }catch(_){} };
+  const save=()=>{ try{ panels[panel]=active.innerHTML; localStorage.setItem(STORE, JSON.stringify({ t:themeName, p:panel, pn:panels })); }catch(_){} };
   const load=()=>{ try{ const s=JSON.parse(localStorage.getItem(STORE)); if(!s) return;
-    if(s.t && THEMES[s.t]) themeName=s.t; committed.innerHTML=s.c||""; active.innerHTML=s.a||""; nContrib=s.n||0; rebuildLedger(); }catch(_){} };
+    if(s.t && THEMES[s.t]) themeName=s.t;
+    if(s.pn){ Object.assign(panels, s.pn); panel=(s.p && panels.hasOwnProperty(s.p))?s.p:"front"; }
+    active.innerHTML=panels[panel]||""; committed.innerHTML=""; }catch(_){} };
+  // ── Card pages: Front / Inside / Back (each its own drawing; the current one lives in #active) ──
+  const PANELS=[["front","Front"],["inside","Inside"],["back","Back"]];
+  const renderPanelTabs=()=>{ const host=$("panelTabs"); if(!host) return; host.innerHTML="";
+    PANELS.forEach(([id,label])=>{ const b=document.createElement("button"); b.type="button"; b.className="ptab"+(id===panel?" on":"");
+      b.textContent=label; b.onclick=()=>switchPanel(id); host.appendChild(b); }); };
+  const switchPanel=p=>{ if(!panels.hasOwnProperty(p)||p===panel) return;
+    panels[panel]=active.innerHTML; panel=p; active.innerHTML=panels[panel]||""; undone=[];
+    renderPanelTabs(); save(); refresh(); };
 
   const toSvg=e=>{ const p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; const q=p.matrixTransform(svg.getScreenCTM().inverse()); return {x:Math.round(q.x*10)/10, y:Math.round(q.y*10)/10}; };
   const smooth=pts=>{ if(!pts.length) return ""; if(pts.length<3) return `M ${pts[0].x} ${pts[0].y}`+pts.slice(1).map(p=>` L ${p.x} ${p.y}`).join("");
@@ -473,7 +487,7 @@
   $("undo").onclick=()=>{ const els=[...active.children]; if(!els.length) return; undone.push(els[els.length-1]); active.removeChild(els[els.length-1]); save(); refresh(); };
   $("redo").onclick=()=>{ const el=undone.pop(); if(el){ active.appendChild(el); save(); refresh(); } };
   $("clearSess").onclick=()=>{ active.innerHTML=""; undone=[]; save(); refresh(); };
-  $("newCanvas").onclick=()=>{ if(!confirm("Start a fresh canvas? This clears all marks on this device.")) return; committed.innerHTML=""; active.innerHTML=""; ledger.innerHTML=""; nContrib=0; undone=[]; save(); refresh(); };
+  $("newCanvas").onclick=()=>{ if(!confirm("Start a fresh card? This clears all three pages on this device.")) return; panels.front=panels.inside=panels.back=""; committed.innerHTML=""; active.innerHTML=""; undone=[]; panel="front"; renderPanelTabs(); save(); refresh(); };
 
   // ── Commit ──
   $("commit").onclick=()=>{ if(nContrib>=CAP || !active.children.length) return;
@@ -527,8 +541,8 @@
   // ── SVG source viewer ──
   let drawerOpen=false;
   $("viewsvg").onclick=()=>{ drawerOpen=!drawerOpen; $("drawer").classList.toggle("open",drawerOpen); renderSource(); };
-  const renderSource=()=>{ if(!drawerOpen) return; const html=committed.innerHTML.trim()||"<!-- no committed marks yet -->"; const bytes=new Blob([html]).size;
-    $("svgview").innerHTML=`<span class="g">&lt;!-- ${nContrib} mark atom(s) · ${bytes} bytes on-chain · rendered natively --&gt;</span>\n`+html.replace(/</g,"&lt;").replace(/&lt;g /g,'<span class="g">&lt;g </span>'); };
+  const renderSource=()=>{ if(!drawerOpen) return; const html=active.innerHTML.trim()||"<!-- this page is blank -->"; const bytes=new Blob([html]).size;
+    $("svgview").innerHTML=`<span class="g">&lt;!-- ${panel} page · ${bytes} bytes · rendered natively --&gt;</span>\n`+html.replace(/</g,"&lt;").replace(/&lt;g /g,'<span class="g">&lt;g </span>'); };
 
   // ── Ultra-HQ export (always the FULL canvas, ignoring zoom/pan) ──
   const rasterPNG=(SIZE,name)=>{ const H=SIZE, W=Math.round(SIZE*CW/CH); const clone=svg.cloneNode(true); clone.querySelector("#brushCursor")?.remove(); // SIZE = height; width follows the 3:4 card ratio
@@ -561,7 +575,7 @@
     $("undo").disabled=!active.children.length; $("redo").disabled=!undone.length;
     const sealed=nContrib>=CAP; $("commit").disabled=sealed||!active.children.length; $("stSeal").textContent=sealed?" · SEALED ✔":""; if(sealed) $("commit").textContent="● Sealed"; renderSource(); };
 
-  load(); applyTheme(); setColor(color); applyView(); refresh();
+  load(); renderPanelTabs(); applyTheme(); setColor(color); applyView(); refresh();
 })();
 </script>
 </body>
