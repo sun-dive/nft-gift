@@ -92,4 +92,8 @@ const api = {
   paymentUri: (addr, sats) => bsvPaymentUri(addr, sats),
 }
 
+// shared with the card module (same bundle) so minting signs with the in-memory key — the key still never leaves the bundle
+export const activeKey = () => _key
+export const activeAddress = () => { const s = read(); return s ? s.address : null }
+
 window.nftWallet = api

@@ -4,7 +4,7 @@
 import { build } from 'esbuild'
 
 await build({
-  entryPoints: ['wallet-src/wallet.js'],
+  entryPoints: ['wallet-src/index.js'],
   outfile: 'immortalize/wallet.bundle.js',
   bundle: true,
   format: 'iife',
