@@ -555,20 +555,29 @@
   $("pngExport").onclick=()=>{ const S=Math.max(64,Math.min(4096,parseInt($("pngRes").value,10)||800)); rasterPNG(S,`card-${S}px.png`); }; // chosen height; width follows 3:4
 
   // ── Export a standalone ANIMATED SVG (vector + SMIL preserved: wiggle/grow/mandelbrot-cycle) — the mintable atom ──
+  // ── Export the WHOLE card: Front/Inside/Back stacked into one self-contained SVG + nftsale.card.v1 metadata ──
   $("exportSvg").onclick=()=>{
-    const clone=svg.cloneNode(true);                    // clone the live canvas (bg, defs, ALL art + SMIL)
-    clone.querySelector("#brushCursor")?.remove();      // drop only the cursor UI — KEEP #active so in-progress art exports too ("what you see")
-    clone.setAttribute("viewBox","0 0 750 1000"); clone.setAttribute("width","750"); clone.setAttribute("height","1000"); // full card frame, ignore zoom/pan
-    clone.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:xlink","http://www.w3.org/1999/xlink"); // guarantee the xlink decl for image frames
-    // consolidate every mark's structured params into ONE <metadata> block (nftsale.paint.v1) for our re-open/3D/replay use,
-    // then strip the inline data-rec so the rendered SVG stays clean. Params live once; the SVG still renders anywhere.
-    const recEls=[...clone.querySelectorAll("[data-rec]")];
-    const strokes=recEls.map(el=>{ try{ return JSON.parse(el.getAttribute("data-rec")); }catch(_){ return null; } }).filter(Boolean);
-    recEls.forEach(el=>el.removeAttribute("data-rec"));
-    const md=document.createElementNS(SVGNS,"metadata"); md.setAttribute("id","nftsale-paint");
-    md.textContent=JSON.stringify({format:"nftsale.paint.v1",w:750,h:1000,bg:bgColor(),strokes});
-    clone.insertBefore(md, clone.firstChild);
-    const doc='<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(clone); // proper XML = valid standalone SVG
+    panels[panel]=active.innerHTML;                                     // stash the live current page first
+    const order=["front","inside","back"], N=order.length;
+    const root=document.createElementNS(SVGNS,"svg");
+    root.setAttribute("xmlns",SVGNS);
+    root.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:xlink","http://www.w3.org/1999/xlink");
+    root.setAttribute("viewBox",`0 0 ${CW} ${CH*N}`); root.setAttribute("width",CW); root.setAttribute("height",CH*N); // pages stacked → unfolded card
+    const defs=svg.querySelector("defs"); if(defs) root.appendChild(defs.cloneNode(true));   // carry #mcyc + #sprayBoil filters
+    const meta={format:"nftsale.card.v1",ratio:"3:4",w:CW,h:CH,bg:bgColor(),panels:[]};
+    order.forEach((role,i)=>{
+      const pg=document.createElementNS(SVGNS,"g"); pg.setAttribute("transform",`translate(0 ${i*CH})`); pg.setAttribute("data-page",role);
+      const bgr=document.createElementNS(SVGNS,"rect"); bgr.setAttribute("width",CW); bgr.setAttribute("height",CH); bgr.setAttribute("fill",bgColor()); pg.appendChild(bgr);
+      const src=document.createElementNS(SVGNS,"g"); src.innerHTML=panels[role]||"";         // parse this page's stored strokes (SVG-namespace innerHTML)
+      const recEls=[...src.querySelectorAll("[data-rec]")];
+      meta.panels.push({role, strokes:recEls.map(el=>{ try{ return JSON.parse(el.getAttribute("data-rec")); }catch(_){ return null; } }).filter(Boolean)});
+      recEls.forEach(el=>el.removeAttribute("data-rec"));                                     // params live once (in metadata); keep the render clean
+      while(src.firstChild) pg.appendChild(src.firstChild);
+      root.appendChild(pg);
+    });
+    const md=document.createElementNS(SVGNS,"metadata"); md.setAttribute("id","nftsale-card"); md.textContent=JSON.stringify(meta);
+    root.insertBefore(md, root.firstChild);
+    const doc='<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(root);
     const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([doc],{type:"image/svg+xml"})); a.download="card.svg"; a.click(); };
 
   const refresh=()=>{ $("stN").textContent=nContrib; $("stCap").textContent=CAP; $("stPrice").textContent=nContrib*SLOT_FEE+HOLDER_FEE;
