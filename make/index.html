@@ -141,6 +141,7 @@
       <button class="tool"    data-tool="shade"       title="Shading — soft, builds up">🖌️</button>
       <button class="tool"    data-tool="highlighter" title="Highlighter — wide, see-through">🟨</button>
       <button class="tool"    data-tool="spray"       title="Spray paint — speckled airbrush">💨</button>
+      <button class="tool"    data-tool="rainbow"     title="Rainbow — swash across and it paints a rainbow ribbon">🌈</button>
       <button class="tool card-hide" data-tool="fractal" title="Fractal brush">🌿</button>
       <button class="tool"    data-tool="eraser"      title="Eraser — paints the background back">🧽</button>
     </div>
@@ -488,6 +489,14 @@
     g._o=p; g._base=base; g._s=base; g._shp=shp; g._x=p.x; g._y=p.y; g._col=color; // resize on drag; twinkle + rec applied on end
     active.appendChild(g); return g; };
 
+  // ── Rainbow brush: a ribbon of concentric ROYGBIV bands that follow the stroke (red widest/outer → violet centre) ──
+  const RAINBOW=["#ff3b30","#ff9500","#ffd400","#34c759","#0a84ff","#5a4fe0","#af52de"];
+  const makeRainbow=p=>{ const g=document.createElementNS(SVGNS,"g"), total=Math.max(9,width*3), n=RAINBOW.length;
+    RAINBOW.forEach((c,i)=>{ const pa=document.createElementNS(SVGNS,"path"); pa.setAttribute("fill","none"); pa.setAttribute("stroke",c);
+      pa.setAttribute("stroke-width",(total*(n-i)/n).toFixed(1)); pa.setAttribute("stroke-linecap","round"); pa.setAttribute("stroke-linejoin","round");
+      pa.setAttribute("d",`M ${p.x} ${p.y}`); g.appendChild(pa); });
+    return g; };
+
   // ── Drawing / pan pointer handlers ──
   // ── Photo tool: tap the card → pick a picture → auto-placed at the tap point, sized to its own aspect, in a fun frame (one per page) ──
   const XLINK="http://www.w3.org/1999/xlink";
@@ -633,6 +642,7 @@
       if(fkind==="Mandelbrot" && fgrow==="loop"){ current.setAttribute("transform","translate(375 500) scale(1000)"); active.appendChild(current); genMandelZoom(current); refresh(); return; }
       if(fkind==="Mandelbrot"){ current.appendChild(mandelImage()); } else { const fp=FRACTALS[fkind]||FRACTALS.Fern; fGrow(current,0,0,0,1,fp.depth,width/160,fp); }
       active.appendChild(current); fPlace(p); refresh(); return; }
+    if(tool==="rainbow"){ current=makeRainbow(p); if(wiggle) current.setAttribute("filter","url(#sprayBoil)"); active.appendChild(current); refresh(); return; }
     if(FREEHAND.has(tool)){ current=document.createElementNS(SVGNS,"path"); strokeAttrs(current); current.setAttribute("d",`M ${p.x} ${p.y}`); }
     else if(tool==="line"){ current=document.createElementNS(SVGNS,"line"); strokeAttrs(current); current.setAttribute("x1",p.x); current.setAttribute("y1",p.y); current.setAttribute("x2",p.x); current.setAttribute("y2",p.y); }
     else if(tool==="rect"){ current=document.createElementNS(SVGNS,"rect"); strokeAttrs(current); current._o=p; }
@@ -648,6 +658,7 @@
     if(tool==="spray"){ points.push(p); sprayAt(p); return; }
     if(tool==="stamp"){ const o=current._o, d=Math.hypot(p.x-o.x,p.y-o.y), s=Math.max(current._base,d); current._s=s; current.setAttribute("transform",`translate(${o.x} ${o.y}) scale(${s.toFixed(2)})`); return; }
     if(tool==="fractal"){ fPlace(p); return; }
+    if(tool==="rainbow"){ const l=points[points.length-1]; if(Math.hypot(p.x-l.x,p.y-l.y)<2) return; points.push(p); const d=smooth(points); [...current.children].forEach(pa=>pa.setAttribute("d",d)); return; }
     if(FREEHAND.has(tool)){ const l=points[points.length-1]; if(Math.hypot(p.x-l.x,p.y-l.y)<2) return; points.push(p); current.setAttribute("d",smooth(points)); }
     else if(tool==="line"){ current.setAttribute("x2",p.x); current.setAttribute("y2",p.y); }
     else if(tool==="rect"){ const o=current._o; current.setAttribute("x",Math.min(o.x,p.x)); current.setAttribute("y",Math.min(o.y,p.y)); current.setAttribute("width",Math.abs(p.x-o.x)); current.setAttribute("height",Math.abs(p.y-o.y)); }
@@ -655,6 +666,7 @@
   // structured params for the just-finished mark (rides as data-rec → <metadata> on export; SVG still renders standalone)
   const recordMark=el=>{ let r;
     if(tool==="spray") r={k:"spray",col:color,w:width,seed:el._seed,pts:cpts(points)};
+    else if(tool==="rainbow") r={k:"rainbow",w:width,pts:cpts(points)};
     else if(tool==="fractal") r = fkind==="Mandelbrot"?{k:"mandel",zoom:fgrow==="loop"?1:0}:{k:"fractal",kind:fkind,grow:fgrow};
     else if(FREEHAND.has(tool)) r={k:tool,col:tool==="eraser"?null:color,w:width,pts:cpts(points)};
     else if(tool==="line") r={k:"line",col:color,w:width,x1:+(+el.getAttribute("x1")).toFixed(1),y1:+(+el.getAttribute("y1")).toFixed(1),x2:+(+el.getAttribute("x2")).toFixed(1),y2:+(+el.getAttribute("y2")).toFixed(1)};
@@ -703,7 +715,7 @@
   // ── Brush cursor ──
   const cursor=$("brushCursor"), bc1=$("bc1"), bc2=$("bc2");
   const showCursor=e=>{ if(tool==="pan"||tool==="move"){ cursor.setAttribute("opacity","0"); return; } const p=toSvg(e); cursor.setAttribute("transform",`translate(${p.x} ${p.y})`);
-    const r = tool==="spray" ? Math.max(6,width*2.4) : tool==="eraser" ? width : Math.max(2,(BRUSH[tool]?width*BRUSH[tool].mult:width)/2);
+    const r = tool==="spray" ? Math.max(6,width*2.4) : tool==="rainbow" ? width*1.5 : tool==="eraser" ? width : Math.max(2,(BRUSH[tool]?width*BRUSH[tool].mult:width)/2);
     bc1.setAttribute("r",r); bc2.setAttribute("r",r); cursor.setAttribute("opacity","1"); };
   svg.addEventListener("pointermove",showCursor); svg.addEventListener("pointerenter",showCursor);
   svg.addEventListener("pointerleave",()=>cursor.setAttribute("opacity","0"));
