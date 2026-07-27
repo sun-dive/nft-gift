@@ -157,7 +157,7 @@
     <div class="sep"></div>
     <div class="group" data-sheet="stamp"><span class="lbl">Stamp</span>
       <button class="tool" data-tool="stamp" title="Stamp — click to place a shape">⭐</button>
-      <select id="stampShape" title="Stamp shape"><option>★</option><option>●</option><option>♥</option><option>✦</option></select>
+      <select id="stampShape" title="Stamp shape"><option>★</option><option>●</option><option>♥</option><option>✦</option><option value="moonC">🌙</option><option value="moonF">🌕</option><option value="moonN">🌑</option><option value="dart">🛩</option></select>
     </div>
     <div class="sep"></div>
     <div class="group" data-sheet="stamp"><span class="lbl">Shape</span>
@@ -335,7 +335,11 @@
   const STAR=(()=>{ let d=""; for(let i=0;i<10;i++){ const r=i%2?0.42:1, a=Math.PI*i/5-Math.PI/2; d+=(i?"L":"M")+(r*Math.cos(a)).toFixed(3)+" "+(r*Math.sin(a)).toFixed(3)+" "; } return d+"Z"; })();
   const SPARK="M0 -1 L0.25 -0.25 L1 0 L0.25 0.25 L0 1 L-0.25 0.25 L-1 0 L-0.25 -0.25 Z";
   const HEART="M0 -0.4 C0.55 -0.95 1.15 -0.1 0 0.75 C-1.15 -0.1 -0.55 -0.95 0 -0.4 Z";
-  const STAMP={ "★":STAR, "✦":SPARK, "♥":HEART };
+  const MOONC="M0.25 -0.97 A1 1 0 1 0 0.25 0.97 A1 1 0 0 1 0.25 -0.97 Z";                          // crescent (lune)
+  const MOONF="M0 -1 A1 1 0 1 1 0 1 A1 1 0 1 1 0 -1 Z";                                              // full disc
+  const MOONN="M0 -1 A1 1 0 1 1 0 1 A1 1 0 1 1 0 -1 Z M0 -0.68 A0.68 0.68 0 1 1 0 0.68 A0.68 0.68 0 1 1 0 -0.68 Z"; // new — a ring (needs even-odd fill)
+  const DART="M1 0 L-0.9 -0.72 L-0.28 0 L-0.9 0.72 Z";                                              // paper dart
+  const STAMP={ "★":STAR, "✦":SPARK, "♥":HEART, moonC:MOONC, moonF:MOONF, moonN:MOONN, dart:DART };
 
   let tool="pen", color="#8b7cf6", width=6, themeName="Aurora", wiggle=false, twinkle=false;
   let drawing=false, current=null, points=[], undone=[], nContrib=0;
@@ -465,7 +469,7 @@
 
   // ── Stamp: click = base size, click-DRAG = grow to the drag radius. (wiggle = rotational boil around centre) ──
   const makeStamp=p=>{ const base=Math.max(6,width*2.6), shp=$("stampShape").value;
-    let el; if(shp==="●"){ el=document.createElementNS(SVGNS,"circle"); el.setAttribute("r",1); } else { el=document.createElementNS(SVGNS,"path"); el.setAttribute("d",STAMP[shp]||STAR); }
+    let el; if(shp==="●"){ el=document.createElementNS(SVGNS,"circle"); el.setAttribute("r",1); } else { el=document.createElementNS(SVGNS,"path"); el.setAttribute("d",STAMP[shp]||STAR); el.setAttribute("fill-rule","evenodd"); }
     el.setAttribute("fill",color);
     const g=document.createElementNS(SVGNS,"g"); g.setAttribute("transform",`translate(${p.x} ${p.y}) scale(${base})`);
     if(wiggle){ const inner=document.createElementNS(SVGNS,"g"); inner.appendChild(el);
@@ -769,6 +773,8 @@
     {chip:"🎇",label:"New Year",bg:"#0a0a18",ink:"#ffd166",emoji:"🥳",front:"Happy New Year!",inside:"To new beginnings\n& bright days ahead 🎉",font:"fun",border:"dots"},
     {chip:"🧧",label:"Lunar New Year",bg:"#3a0d0d",ink:"#ffd700",emoji:"🧧",front:"新年快乐",inside:"Luck, health &\nprosperity to you 🏮",font:"serif",border:"double"},
     {chip:"🌙",label:"Ramadan",bg:"#0c1030",ink:"#f5d76e",emoji:"🌙",front:"Ramadan Mubarak",inside:"Wishing you a blessed,\npeaceful Ramadan 🕌",font:"serif",border:"double"},
+    {chip:"🏮",label:"Lantern Festival",bg:"#3a0f0f",ink:"#ffcf3f",emoji:"🏮",front:"元宵节快乐",inside:"Wishing you light,\nwarmth & togetherness 🏮",font:"serif",border:"double"},
+    {chip:"🥮",label:"Moon Festival",bg:"#0c1428",ink:"#ffd166",emoji:"🌕",front:"中秋节快乐",inside:"Under one full moon —\nreunion, peace & joy 🥮",font:"serif",border:"rounded"},
   ];
   const _tt=(txt,x,y,size,fill,fontKey,rec)=>{ const t=document.createElementNS(SVGNS,"text"); t.setAttribute("x",x); t.setAttribute("font-size",size); if(fill) t.setAttribute("fill",fill); if(fontKey) t.setAttribute("font-family",FONTS[fontKey]||FONTS.round); t.setAttribute("text-anchor","middle"); t.setAttribute("dominant-baseline","middle"); if(rec!==false) t.setAttribute("data-rec",JSON.stringify({k:"text",font:fontKey||"round"}));
     const lines=String(txt).split("\n"); t.setAttribute("y",(y-(lines.length-1)*size*0.64).toFixed(0));
