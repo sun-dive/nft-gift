@@ -28,6 +28,16 @@
   #textInput{position:fixed;display:none;z-index:60;transform:translate(-50%,-50%);min-width:120px;max-width:82vw;
     padding:6px 12px;border:2px solid var(--accent);border-radius:9px;background:var(--panel);color:var(--ink);
     font:600 22px var(--font);text-align:center;outline:none;box-shadow:0 8px 26px rgba(0,0,0,.35)}
+  .overlay{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:18px}
+  .overlay[hidden]{display:none}
+  .sharebox{position:relative;background:var(--panel);color:var(--ink);border:2px solid var(--line);border-radius:20px;padding:26px 24px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .sharebox .sh-x{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer}
+  .sharebox .sh-emoji{font-size:46px} .sharebox h3{margin:8px 0 4px;font-size:22px} .sharebox p{color:var(--dim);margin:0 0 16px;font-size:14px}
+  .sh-row{display:flex;gap:8px;margin-bottom:14px}
+  .sh-row input{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px;color:var(--ink);font:13px ui-monospace,Menlo,monospace}
+  .sh-row button,.sh-btn{border:2px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:11px;padding:10px 14px;font-weight:700;cursor:pointer;text-decoration:none;font-size:14px;display:inline-flex;align-items:center;gap:6px;justify-content:center}
+  .sh-actions{display:flex;gap:8px} .sh-actions .sh-btn{flex:1}
+  .sh-btn.primary{background:var(--accent);border-color:var(--accent);color:#0b0b12}
   button.tool,select,button.act{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);padding:7px 9px;font-size:14px;cursor:pointer;line-height:1}
   button.tool{min-width:36px}
   button.tool.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,var(--panel2));color:#fff}
@@ -244,7 +254,8 @@
     </select>
     <select id="theme" title="Canvas colour theme"></select>
     <button class="act" id="viewsvg">&lt;/&gt; SVG</button>
-    <button class="act pay" id="exportSvg" title="Download your whole card — animated, all three pages, in one file">⬇ Save card</button>
+    <button class="act pay" id="shareBtn" title="Get a shareable link to your card">🔗 Share card</button>
+    <button class="act" id="exportSvg" title="Download your whole card as a file (all three pages, animated)">⬇ Save card</button>
     <select id="pngRes" class="card-hide" title="PNG output resolution">
       <option value="800">800² · cover</option>
       <option value="1000">1000²</option>
@@ -270,6 +281,16 @@
   <div id="sheetBackdrop"></div>
   <input id="textInput" type="text" placeholder="Type…" spellcheck="false" autocomplete="off" autocapitalize="sentences">
   <input id="photoFile" type="file" accept="image/*" style="display:none">
+  <div id="shareOverlay" class="overlay" hidden>
+    <div class="sharebox">
+      <button class="sh-x" id="shareClose" title="Close">✕</button>
+      <div class="sh-emoji">💌</div>
+      <h3>Your card is ready to send!</h3>
+      <p>Anyone with this link can open your card. 🎁</p>
+      <div class="sh-row"><input id="shareLink" readonly value=""><button id="shareCopy">📋 Copy</button></div>
+      <div class="sh-actions"><a id="shareOpen" class="sh-btn" target="_blank" rel="noopener">👀 Preview</a><button id="shareSend" class="sh-btn primary">📤 Send it</button></div>
+    </div>
+  </div>
 
 <script>
 (() => {
@@ -645,7 +666,7 @@
 
   // ── Export a standalone ANIMATED SVG (vector + SMIL preserved: wiggle/grow/mandelbrot-cycle) — the mintable atom ──
   // ── Export the WHOLE card: Front/Inside/Back stacked into one self-contained SVG + nftsale.card.v1 metadata ──
-  $("exportSvg").onclick=()=>{
+  const buildCardDoc=()=>{
     panels[panel]=active.innerHTML;                                     // stash the live current page first
     const order=["front","inside","back"], N=order.length;
     const root=document.createElementNS(SVGNS,"svg");
@@ -674,8 +695,21 @@
     if(usedF.size){ const fst=document.createElementNS(SVGNS,"style"); fst.textContent=[...usedF].map(k=>FONT_FACE[k]).join(""); root.insertBefore(fst, root.firstChild); } // embed ONLY the fonts this card uses → renders anywhere (BMF-atom reuse can replace this later)
     const md=document.createElementNS(SVGNS,"metadata"); md.setAttribute("id","nftsale-card"); md.textContent=JSON.stringify(meta);
     root.insertBefore(md, root.firstChild);
-    const doc='<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(root);
-    const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([doc],{type:"image/svg+xml"})); a.download="card.svg"; a.click(); };
+    return '<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(root);
+  };
+  // ⬇ Save card = download the file
+  $("exportSvg").onclick=()=>{ const doc=buildCardDoc(); const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([doc],{type:"image/svg+xml"})); a.download="card.svg"; a.click(); };
+  // 🔗 Share = host the card + hand back a clickable link
+  $("shareBtn").onclick=async()=>{ const b=$("shareBtn"), lbl=b.textContent; b.textContent="⏳ making link…"; b.disabled=true;
+    try{ const r=await fetch("../save.php",{method:"POST",headers:{"Content-Type":"image/svg+xml"},body:buildCardDoc()});
+      const j=await r.json(); if(!j||!j.id) throw 0; showShare(location.origin+"/open/?c="+j.id);
+    }catch(_){ alert("Couldn't create a link right now — you can still ⬇ Save card and send the file."); }
+    finally{ b.textContent=lbl; b.disabled=false; } };
+  const showShare=link=>{ $("shareLink").value=link; $("shareOpen").href=link; $("shareOverlay").hidden=false;
+    $("shareCopy").onclick=()=>{ $("shareLink").select(); try{ navigator.clipboard.writeText(link); }catch(_){ try{document.execCommand("copy");}catch(e){} } $("shareCopy").textContent="✓ Copied!"; setTimeout(()=>$("shareCopy").textContent="📋 Copy",1600); };
+    $("shareSend").onclick=()=>{ if(navigator.share) navigator.share({title:"A card for you 🎁",url:link}).catch(()=>{}); else $("shareCopy").click(); }; };
+  $("shareClose").onclick=()=>{ $("shareOverlay").hidden=true; };
+  $("shareOverlay").onclick=e=>{ if(e.target===$("shareOverlay")) $("shareOverlay").hidden=true; };
 
   const refresh=()=>{ $("stN").textContent=nContrib; $("stCap").textContent=CAP; $("stPrice").textContent=nContrib*SLOT_FEE+HOLDER_FEE;
     $("undo").disabled=!active.children.length; $("redo").disabled=!undone.length;

@@ -109,6 +109,7 @@
     let doc; try{ doc=new DOMParser().parseFromString(svgText,"image/svg+xml"); }catch(_){ return showErr("Couldn't read that file."); }
     const root=doc.documentElement;
     if(!root || root.nodeName.toLowerCase()!=="svg" || doc.querySelector("parsererror")) return showErr("That doesn't look like a card file. 💭");
+    root.querySelectorAll("script,foreignObject").forEach(el=>el.remove());   // never import active content from a card
     // fonts (a <style> at the card root) → apply document-wide
     const style=root.querySelector("style"); if(style){ const s=document.createElement("style"); s.textContent=style.textContent; document.head.appendChild(s); }
     // defs (#mcyc, #sprayBoil, #crease …) → shared hidden svg so url(#…) resolves
@@ -138,9 +139,10 @@
   // flip to the back
   $("flipBtn").onclick=()=>{ const bw=$("backwrap"), on=bw.classList.toggle("show"); $("stage").hidden=on; $("flipBtn").textContent = on ? "↩ Back to the card" : "🔄 See the back"; };
 
-  // optional ?card=<url> (same-origin hosted / future gift-links)
-  const q=new URLSearchParams(location.search).get("card");
-  if(q){ fetch(q).then(r=>r.text()).then(render).catch(()=>showErr("Couldn't load that card link.")); }
+  // shared-card link: ?c=<id> → /cards/<id>.svg  (?card=<url> also supported for hosted files)
+  const P=new URLSearchParams(location.search), cid=P.get("c"), curl=P.get("card");
+  if(cid){ $("drop").hidden=true; fetch("../cards/"+encodeURIComponent(cid)+".svg").then(r=>r.ok?r.text():Promise.reject()).then(render).catch(()=>{ $("drop").hidden=false; showErr("Hmm — couldn't find that card. 💭"); }); }
+  else if(curl){ $("drop").hidden=true; fetch(curl).then(r=>r.text()).then(render).catch(()=>{ $("drop").hidden=false; showErr("Couldn't load that card link."); }); }
 })();
 </script>
 </body>

@@ -1,0 +1,6 @@
+# Shared card files — static SVG, no active content permitted.
+<IfModule mod_headers.c>
+  Header set Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; img-src data:; font-src data:; sandbox"
+  Header set X-Content-Type-Options "nosniff"
+</IfModule>
+AddType image/svg+xml .svg

@@ -1,14 +1,16 @@
 ---
 # cPanel Git™ Version Control deployment for nft.gift — the card maker.
-#
 # In cPanel → Git Version Control: "Update from Remote" then "Deploy HEAD Commit".
 # DEPLOYPATH = the nft.gift document root, relative to $HOME. Confirm in cPanel → Domains.
 deployment:
   tasks:
     - export DEPLOYPATH="$HOME/nft.gift/"
     - /bin/cp index.html "$DEPLOYPATH"            # landing
-    - /bin/cp -R make "$DEPLOYPATH"               # the card editor    → nft.gift/make/
-    - /bin/cp -R open "$DEPLOYPATH"               # the card opener     → nft.gift/open/
-    - /bin/cp -R help "$DEPLOYPATH"               # help document       → nft.gift/help/
-    - /bin/cp -R immortalize "$DEPLOYPATH"        # own/send (soon)     → nft.gift/immortalize/
-    - /bin/cp -R chat "$DEPLOYPATH"               # private chat (soon) → nft.gift/chat/
+    - /bin/cp -R make "$DEPLOYPATH"               # the card editor      → nft.gift/make/
+    - /bin/cp -R open "$DEPLOYPATH"               # the card opener       → nft.gift/open/
+    - /bin/cp -R help "$DEPLOYPATH"               # help document         → nft.gift/help/
+    - /bin/cp -R immortalize "$DEPLOYPATH"        # own/send (soon)       → nft.gift/immortalize/
+    - /bin/cp -R chat "$DEPLOYPATH"               # private chat (soon)   → nft.gift/chat/
+    - /bin/cp save.php "$DEPLOYPATH"              # share backend: stores a card, returns an id
+    - /bin/mkdir -p "$DEPLOYPATH/cards"           # shared cards live here (PHP writes them)
+    - /bin/cp cards/.htaccess "$DEPLOYPATH/cards/" # neutralise scripts in served cards (don't touch stored *.svg)
