@@ -14,7 +14,7 @@ import { qrSvg, bsvPaymentUri } from './qr'
 const PATH = "m/44'/236'/0'/0/0"          // coin type 236 = BSV — SAME path as PharLap → one identity across apps
 const STORE = 'nftGift.wallet.v1'
 const WOC = 'https://api.whatsonchain.com/v1/bsv/main'
-const SS_REF = ''                          // SimpleSwap referral code (set once the nft.gift account exists)
+const SS_REF = 'efe9f9694b4f'              // SimpleSwap partner exchange ref (same single code as PharLap) — swap any crypto → BSV, no signup
 
 // ── keys ──────────────────────────────────────────────────────────────────
 const norm = p => String(p).trim().replace(/\s+/g, ' ')
