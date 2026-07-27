@@ -131,19 +131,22 @@
   <nav class="appnav">
     <a class="brand" href="../"><b>🎁</b> nft<span>.gift</span></a>
     <div class="tabs" id="panelTabs"><!-- Front / Inside / Back panel tabs (Phase 1b) --></div>
-    <a class="tab" href="../help/" style="text-decoration:none">❔ Help</a>
+    <select id="langSel" class="tab" title="Language · 語言" aria-label="Language" style="cursor:pointer;font-weight:700">
+      <option value="en">🌐 EN</option><option value="zh">🌐 中文</option>
+    </select>
+    <a class="tab" href="../help/" style="text-decoration:none" data-i18n="nav.help">❔ Help</a>
   </nav>
 
   <div class="toolbar">
-    <div class="group" data-sheet="brush"><span class="lbl">Brush</span>
-      <button class="tool on" data-tool="pen"         title="Pen — smooth solid ink">✒️</button>
-      <button class="tool"    data-tool="pencil"      title="Pencil — thin & crisp">✏️</button>
-      <button class="tool"    data-tool="shade"       title="Shading — soft, builds up">🖌️</button>
-      <button class="tool"    data-tool="highlighter" title="Highlighter — wide, see-through">🟨</button>
-      <button class="tool"    data-tool="spray"       title="Spray paint — speckled airbrush">💨</button>
-      <button class="tool"    data-tool="rainbow"     title="Rainbow — swash across and it paints a rainbow ribbon">🌈</button>
+    <div class="group" data-sheet="brush"><span class="lbl" data-i18n="lbl.brush">Brush</span>
+      <button class="tool on" data-tool="pen"         data-i18n-title="tip.pen"         title="Pen — smooth solid ink">✒️</button>
+      <button class="tool"    data-tool="pencil"      data-i18n-title="tip.pencil"      title="Pencil — thin & crisp">✏️</button>
+      <button class="tool"    data-tool="shade"       data-i18n-title="tip.shade"       title="Shading — soft, builds up">🖌️</button>
+      <button class="tool"    data-tool="highlighter" data-i18n-title="tip.highlighter" title="Highlighter — wide, see-through">🟨</button>
+      <button class="tool"    data-tool="spray"       data-i18n-title="tip.spray"       title="Spray paint — speckled airbrush">💨</button>
+      <button class="tool"    data-tool="rainbow"     data-i18n-title="tip.rainbow"     title="Rainbow — swash across and it paints a rainbow ribbon">🌈</button>
       <button class="tool card-hide" data-tool="fractal" title="Fractal brush">🌿</button>
-      <button class="tool"    data-tool="eraser"      title="Eraser — paints the background back">🧽</button>
+      <button class="tool"    data-tool="eraser"      data-i18n-title="tip.eraser"      title="Eraser — paints the background back">🧽</button>
     </div>
     <div class="sep card-hide"></div>
     <div class="group card-hide"><span class="lbl">Plant</span>
@@ -157,46 +160,46 @@
       </select>
     </div>
     <div class="sep"></div>
-    <div class="group" data-sheet="stamp"><span class="lbl">Stamp</span>
-      <button class="tool" data-tool="stamp" title="Stamp — click to place a shape">⭐</button>
-      <select id="stampShape" title="Stamp shape"><option>★</option><option>●</option><option>♥</option><option>✦</option><option value="moonC">🌙</option><option value="moonF">🌕</option><option value="moonN">🌑</option><option value="dart">🛩</option><option value="bulb">💡</option></select>
+    <div class="group" data-sheet="stamp"><span class="lbl" data-i18n="lbl.stamp">Stamp</span>
+      <button class="tool" data-tool="stamp" data-i18n-title="tip.stamp" title="Stamp — click to place a shape">⭐</button>
+      <select id="stampShape" data-i18n-title="tip.stampShape" title="Stamp shape"><option>★</option><option>●</option><option>♥</option><option>✦</option><option value="moonC">🌙</option><option value="moonF">🌕</option><option value="moonN">🌑</option><option value="dart">🛩</option><option value="bulb">💡</option></select>
     </div>
     <div class="sep"></div>
-    <div class="group" data-sheet="stamp"><span class="lbl">Shape</span>
-      <button class="tool" data-tool="line" title="Line">╱</button>
-      <button class="tool" data-tool="rect" title="Rectangle">▭</button>
-      <button class="tool" data-tool="ellipse" title="Ellipse">◯</button>
+    <div class="group" data-sheet="stamp"><span class="lbl" data-i18n="lbl.shape">Shape</span>
+      <button class="tool" data-tool="line" data-i18n-title="tip.line" title="Line">╱</button>
+      <button class="tool" data-tool="rect" data-i18n-title="tip.rect" title="Rectangle">▭</button>
+      <button class="tool" data-tool="ellipse" data-i18n-title="tip.ellipse" title="Ellipse">◯</button>
     </div>
-    <div class="group" data-sheet="stamp"><span class="lbl">Photo</span>
-      <button class="tool" data-tool="photo" title="Photo — tap the card to add a picture">📷</button>
-      <select id="frameStyle" title="Photo frame">
-        <option value="polaroid">🖼️ Polaroid</option>
-        <option value="classic">🖼️ Classic</option>
-        <option value="tape">🩹 Tape</option>
-        <option value="dots">⚪ Dots</option>
-        <option value="none">▫️ Plain</option>
+    <div class="group" data-sheet="stamp"><span class="lbl" data-i18n="lbl.photo">Photo</span>
+      <button class="tool" data-tool="photo" data-i18n-title="tip.photo" title="Photo — tap the card to add a picture">📷</button>
+      <select id="frameStyle" data-i18n-title="tip.frameStyle" title="Photo frame">
+        <option value="polaroid" data-i18n="opt.frame.polaroid">🖼️ Polaroid</option>
+        <option value="classic" data-i18n="opt.frame.classic">🖼️ Classic</option>
+        <option value="tape" data-i18n="opt.frame.tape">🩹 Tape</option>
+        <option value="dots" data-i18n="opt.frame.dots">⚪ Dots</option>
+        <option value="none" data-i18n="opt.frame.plain">▫️ Plain</option>
       </select>
     </div>
-    <div class="group" data-sheet="stamp"><span class="lbl">Arrange</span>
-      <button class="tool" data-tool="move" title="Move, resize &amp; recolour — tap anything you've placed, then drag to move it, drag its corner to resize, pick a colour to recolour it, or tap ✕ to remove">🤚</button>
+    <div class="group" data-sheet="stamp"><span class="lbl" data-i18n="lbl.arrange">Arrange</span>
+      <button class="tool" data-tool="move" data-i18n-title="tip.move" title="Move, resize &amp; recolour — tap anything you've placed, then drag to move it, drag its corner to resize, pick a colour to recolour it, or tap ✕ to remove">🤚</button>
     </div>
     <div class="sep"></div>
-    <div class="group" data-sheet="text"><span class="lbl">Text</span>
-      <button class="tool" data-tool="text" title="Text — tap the card, then type. Long lines wrap to fit; ⏎ forces a new line. Tap the card (or ⌘/Ctrl+⏎) to place it">🅣</button>
-      <select id="fontFace" title="Font">
-        <option value="round">Aa · Rounded</option>
-        <option value="fun">Aa · Fun</option>
-        <option value="hand">Aa · Handwriting</option>
-        <option value="serif">Aa · Classic</option>
-        <option value="bold">Aa · Bold</option>
-        <option value="type">Aa · Typewriter</option>
+    <div class="group" data-sheet="text"><span class="lbl" data-i18n="lbl.text">Text</span>
+      <button class="tool" data-tool="text" data-i18n-title="tip.text" title="Text — tap the card, then type. Long lines wrap to fit; ⏎ forces a new line. Tap the card (or ⌘/Ctrl+⏎) to place it">🅣</button>
+      <select id="fontFace" data-i18n-title="tip.fontFace" title="Font">
+        <option value="round" data-i18n="opt.font.round">Aa · Rounded</option>
+        <option value="fun" data-i18n="opt.font.fun">Aa · Fun</option>
+        <option value="hand" data-i18n="opt.font.hand">Aa · Handwriting</option>
+        <option value="serif" data-i18n="opt.font.serif">Aa · Classic</option>
+        <option value="bold" data-i18n="opt.font.bold">Aa · Bold</option>
+        <option value="type" data-i18n="opt.font.type">Aa · Typewriter</option>
       </select>
     </div>
     <div class="sep"></div>
     <div class="group" style="position:relative" data-sheet="fx">
-      <button class="tool" id="wiggle" title="Wiggle — make strokes & stamps come alive" style="min-width:auto;padding:7px 9px">🌀</button>
-      <button class="tool" id="twinkle" title="Twinkle — opacity shimmer, out-of-sync per mark (stacks with wiggle)" style="min-width:auto;padding:7px 9px">✨</button>
-      <button class="tool" id="twiggle" title="Wiggle settings (twiggle)" style="min-width:auto;padding:7px 8px">⚙</button>
+      <button class="tool" id="wiggle" data-i18n-title="tip.wiggle" title="Wiggle — make strokes & stamps come alive" style="min-width:auto;padding:7px 9px">🌀</button>
+      <button class="tool" id="twinkle" data-i18n-title="tip.twinkle" title="Twinkle — opacity shimmer, out-of-sync per mark (stacks with wiggle)" style="min-width:auto;padding:7px 9px">✨</button>
+      <button class="tool" id="twiggle" data-i18n-title="tip.twiggle" title="Wiggle settings (twiggle)" style="min-width:auto;padding:7px 8px">⚙</button>
       <div class="tpanel" id="tpanel" hidden>
         <label>Amount <span class="v" id="wAmtV">7</span></label>
         <input type="range" id="wAmt" min="2" max="22" value="7">
@@ -207,14 +210,14 @@
         <input type="range" id="tSpd" min="1" max="10" value="5">
       </div>
     </div>
-    <div class="group" data-sheet="fx"><span class="lbl">Border</span>
-      <select id="borderStyle" title="Card border (applies to all pages)">
-        <option value="none">▫️ No border</option>
-        <option value="line">▭ Line</option>
-        <option value="rounded">▢ Rounded</option>
-        <option value="double">▤ Double</option>
-        <option value="dashed">┈ Dashed</option>
-        <option value="dots">⋯ Dots</option>
+    <div class="group" data-sheet="fx"><span class="lbl" data-i18n="lbl.border">Border</span>
+      <select id="borderStyle" data-i18n-title="tip.borderStyle" title="Card border (applies to all pages)">
+        <option value="none" data-i18n="opt.border.none">▫️ No border</option>
+        <option value="line" data-i18n="opt.border.line">▭ Line</option>
+        <option value="rounded" data-i18n="opt.border.rounded">▢ Rounded</option>
+        <option value="double" data-i18n="opt.border.double">▤ Double</option>
+        <option value="dashed" data-i18n="opt.border.dashed">┈ Dashed</option>
+        <option value="dots" data-i18n="opt.border.dots">⋯ Dots</option>
       </select>
     </div>
     <div class="sep card-hide"></div>
@@ -225,17 +228,17 @@
       <button class="tool" id="zIn" title="Zoom in">🔍+</button>
     </div>
     <div class="sep"></div>
-    <div class="group" id="widths" data-sheet="brush"><span class="lbl">Size</span></div>
+    <div class="group" id="widths" data-sheet="brush"><span class="lbl" data-i18n="lbl.size">Size</span></div>
     <div class="sep"></div>
-    <div class="group" data-sheet="colour"><span class="lbl">Colour</span>
-      <input type="color" id="nativeColor" value="#8b7cf6" title="Pick any colour — hue, saturation, brightness">
-      <input id="hex" type="text" spellcheck="false" maxlength="7" aria-label="Hex colour" title="Type a hex colour">
+    <div class="group" data-sheet="colour"><span class="lbl" data-i18n="lbl.colour">Colour</span>
+      <input type="color" id="nativeColor" value="#8b7cf6" data-i18n-title="tip.nativeColor" title="Pick any colour — hue, saturation, brightness">
+      <input id="hex" type="text" spellcheck="false" maxlength="7" aria-label="Hex colour" data-i18n-title="tip.hex" title="Type a hex colour">
     </div>
     <div class="group" id="palette" data-sheet="colour"></div>
     <div class="sep"></div>
     <div class="group">
-      <button class="tool" id="undo" title="Undo last stroke">↶</button>
-      <button class="tool" id="redo" title="Redo">↷</button>
+      <button class="tool" id="undo" data-i18n-title="tip.undo" title="Undo last stroke">↶</button>
+      <button class="tool" id="redo" data-i18n-title="tip.redo" title="Redo">↷</button>
     </div>
     <div class="stat card-hide">
       <span>marks <b><span id="stN">0</span>/<span id="stCap">50</span></b><span id="stSeal" class="seal"></span></span> ·
@@ -256,29 +259,29 @@
           <circle id="bc2" r="3" fill="none" stroke="#fff" stroke-width="0.8"></circle>
         </g>
       </svg>
-      <div class="hint" id="hint">draw → “Add mark” to commit · scroll or 🔍 to zoom · ✋ to pan · work auto-saves</div>
+      <div class="hint" id="hint" data-i18n="hint.main">draw → “Add mark” to commit · scroll or 🔍 to zoom · ✋ to pan · work auto-saves</div>
     </div>
   </div>
 
   <div class="drawer" id="drawer"><pre id="svgview"></pre></div>
 
   <footer>
-    <button class="act" id="tmplBtn" title="Start from an occasion template">🎨 Templates</button>
+    <button class="act" id="tmplBtn" data-i18n="foot.templates" data-i18n-title="tip.tmplBtn" title="Start from an occasion template">🎨 Templates</button>
     <button class="act primary card-hide" id="commit">＋ Add mark</button>
-    <button class="act" id="clearSess">🧹 Clear page</button>
-    <button class="act" id="newCanvas" title="Start a fresh card (clears all three pages)">🗑 New card</button>
+    <button class="act" id="clearSess" data-i18n="foot.clear">🧹 Clear page</button>
+    <button class="act" id="newCanvas" data-i18n="foot.new" data-i18n-title="tip.newCard" title="Start a fresh card (clears all three pages)">🗑 New card</button>
     <div class="ledger card-hide" id="ledger"></div>
     <div class="spacer"></div>
-    <select id="skin" title="App look / skin">
-      <option value="crayon">Skin: Crayon</option>
-      <option value="sketch">Skin: Sketchbook</option>
-      <option value="toy">Skin: Toy Box</option>
-      <option value="studio">Skin: Studio</option>
+    <select id="skin" data-i18n-title="tip.skin" title="App look / skin">
+      <option value="crayon" data-i18n="opt.skin.crayon">Skin: Crayon</option>
+      <option value="sketch" data-i18n="opt.skin.sketch">Skin: Sketchbook</option>
+      <option value="toy" data-i18n="opt.skin.toy">Skin: Toy Box</option>
+      <option value="studio" data-i18n="opt.skin.studio">Skin: Studio</option>
     </select>
-    <select id="theme" title="Canvas colour theme"></select>
+    <select id="theme" data-i18n-title="tip.theme" title="Canvas colour theme"></select>
     <button class="act" id="viewsvg">&lt;/&gt; SVG</button>
-    <button class="act pay" id="shareBtn" title="Get a shareable link to your card">🔗 Share card</button>
-    <button class="act" id="exportSvg" title="Download your whole card as a file (all three pages, animated)">⬇ Save card</button>
+    <button class="act pay" id="shareBtn" data-i18n="foot.share" data-i18n-title="tip.shareBtn" title="Get a shareable link to your card">🔗 Share card</button>
+    <button class="act" id="exportSvg" data-i18n="foot.save" data-i18n-title="tip.saveCard" title="Download your whole card as a file (all three pages, animated)">⬇ Save card</button>
     <select id="pngRes" class="card-hide" title="PNG output resolution">
       <option value="800">800² · cover</option>
       <option value="1000">1000²</option>
@@ -292,33 +295,33 @@
 
   <!-- mobile-only bottom tool bar → opens slide-up sheets (the tool groups above) -->
   <nav class="mobar" aria-label="Card tools">
-    <button class="mb" data-sheet="brush"><b>🖌️</b>Draw</button>
-    <button class="mb" data-sheet="text"><b>✍️</b>Text</button>
-    <button class="mb" data-sheet="stamp"><b>✚</b>Add</button>
-    <button class="mb" data-sheet="fx"><b>✨</b>Fun</button>
-    <button class="mb" data-sheet="colour"><b>🎨</b>Colour</button>
-    <button class="mb mini" id="mbUndo" title="Undo"><b>↶</b></button>
-    <button class="mb mini" id="mbRedo" title="Redo"><b>↷</b></button>
-    <button class="mb" data-sheet="save"><b>⬇</b>Save</button>
+    <button class="mb" data-sheet="brush"><b>🖌️</b><span data-i18n="mb.draw">Draw</span></button>
+    <button class="mb" data-sheet="text"><b>✍️</b><span data-i18n="mb.text">Text</span></button>
+    <button class="mb" data-sheet="stamp"><b>✚</b><span data-i18n="mb.add">Add</span></button>
+    <button class="mb" data-sheet="fx"><b>✨</b><span data-i18n="mb.fun">Fun</span></button>
+    <button class="mb" data-sheet="colour"><b>🎨</b><span data-i18n="mb.colour">Colour</span></button>
+    <button class="mb mini" id="mbUndo" data-i18n-title="tip.mbUndo" title="Undo"><b>↶</b></button>
+    <button class="mb mini" id="mbRedo" data-i18n-title="tip.mbRedo" title="Redo"><b>↷</b></button>
+    <button class="mb" data-sheet="save"><b>⬇</b><span data-i18n="mb.save">Save</span></button>
   </nav>
   <div id="sheetBackdrop"></div>
-  <textarea id="textInput" rows="1" placeholder="Type your message…" spellcheck="false" autocomplete="off" autocapitalize="sentences"></textarea>
+  <textarea id="textInput" rows="1" placeholder="Type your message…" data-i18n-ph="ph.type" spellcheck="false" autocomplete="off" autocapitalize="sentences"></textarea>
   <input id="photoFile" type="file" accept="image/*" style="display:none">
   <div id="shareOverlay" class="overlay" hidden>
     <div class="sharebox">
-      <button class="sh-x" id="shareClose" title="Close">✕</button>
+      <button class="sh-x" id="shareClose" data-i18n-title="tip.shareClose" title="Close">✕</button>
       <div class="sh-emoji">💌</div>
-      <h3>Your card is ready to send!</h3>
-      <p>Anyone with this link can open your card. 🎁</p>
-      <div class="sh-row"><input id="shareLink" readonly value=""><button id="shareCopy">📋 Copy</button></div>
-      <div class="sh-actions"><a id="shareOpen" class="sh-btn" target="_blank" rel="noopener">👀 Preview</a><button id="shareSend" class="sh-btn primary">📤 Send it</button></div>
+      <h3 data-i18n="share.title">Your card is ready to send!</h3>
+      <p data-i18n="share.desc">Anyone with this link can open your card. 🎁</p>
+      <div class="sh-row"><input id="shareLink" readonly value=""><button id="shareCopy" data-i18n="share.copy">📋 Copy</button></div>
+      <div class="sh-actions"><a id="shareOpen" class="sh-btn" target="_blank" rel="noopener" data-i18n="share.preview">👀 Preview</a><button id="shareSend" class="sh-btn primary" data-i18n="share.send">📤 Send it</button></div>
     </div>
   </div>
   <div id="tmplOverlay" class="overlay" hidden>
     <div class="tmplbox">
-      <button class="sh-x" id="tmplClose" title="Close">✕</button>
-      <h3>🎨 Start from a template</h3>
-      <p>Pick an occasion — then make it yours.</p>
+      <button class="sh-x" id="tmplClose" data-i18n-title="tip.tmplClose" title="Close">✕</button>
+      <h3 data-i18n="tmpl.title">🎨 Start from a template</h3>
+      <p data-i18n="tmpl.desc">Pick an occasion — then make it yours.</p>
       <div class="tgrid" id="tmplGrid"></div>
     </div>
   </div>
@@ -329,6 +332,48 @@
   const svg=$("canvas"), committed=$("committed"), active=$("active"), bg=$("bg"), ledger=$("ledger");
   const STORE="nftGift.card.v1", CW=750, CH=1000;   // 3:4 portrait card coordinate space
   const CAP=50, SLOT_FEE=1, HOLDER_FEE=1;
+
+  // ── i18n ── English lives in the HTML (source + fallback); each other language is one dictionary below.
+  //    Add a language = add a { code: {…} } block to STR + an <option> to #langSel. Auto-detects the browser locale.
+  const LANGSTORE="nftGift.lang", LANGS={en:"English", zh:"繁體中文"};
+  const STR={ zh:{
+    "nav.help":"❔ 說明",
+    "lbl.brush":"筆刷","lbl.stamp":"印章","lbl.shape":"形狀","lbl.photo":"相片","lbl.arrange":"調整","lbl.text":"文字","lbl.border":"邊框","lbl.size":"粗細","lbl.colour":"顏色","lbl.palette":"調色盤",
+    "opt.frame.polaroid":"🖼️ 拍立得","opt.frame.classic":"🖼️ 經典","opt.frame.tape":"🩹 膠帶","opt.frame.dots":"⚪ 圓點","opt.frame.plain":"▫️ 無框",
+    "opt.font.round":"Aa · 圓體","opt.font.fun":"Aa · 趣味","opt.font.hand":"Aa · 手寫","opt.font.serif":"Aa · 經典","opt.font.bold":"Aa · 粗體","opt.font.type":"Aa · 打字機",
+    "opt.border.none":"▫️ 無邊框","opt.border.line":"▭ 直線","opt.border.rounded":"▢ 圓角","opt.border.double":"▤ 雙線","opt.border.dashed":"┈ 虛線","opt.border.dots":"⋯ 圓點",
+    "hint.main":"作畫後自動儲存 · 捲動或 🔍 縮放 · ✋ 平移",
+    "foot.templates":"🎨 範本","foot.clear":"🧹 清除此頁","foot.new":"🗑 新卡片","foot.share":"🔗 分享卡片","foot.save":"⬇ 儲存卡片",
+    "opt.skin.crayon":"風格：蠟筆","opt.skin.sketch":"風格：素描本","opt.skin.toy":"風格：玩具箱","opt.skin.studio":"風格：工作室",
+    "share.title":"你的卡片可以寄出了！","share.desc":"任何有這個連結的人都能打開你的卡片 🎁","share.copy":"📋 複製","share.preview":"👀 預覽","share.send":"📤 寄出",
+    "tmpl.title":"🎨 從範本開始","tmpl.desc":"選一個節日 — 再讓它成為你的。",
+    "mb.draw":"畫","mb.text":"字","mb.add":"加","mb.fun":"趣","mb.colour":"色","mb.save":"存",
+    "panel.front":"封面","panel.inside":"內頁","panel.back":"封底",
+    "confirm.new":"要開始一張全新卡片嗎？這會清除此裝置上的全部三頁。",
+    "ph.type":"輸入你的訊息…",
+    "tip.pen":"筆 — 平滑實心墨水","tip.pencil":"鉛筆 — 細緻清晰","tip.shade":"陰影 — 柔和、可疊加","tip.highlighter":"螢光筆 — 寬、半透明","tip.spray":"噴漆 — 噴點效果","tip.rainbow":"彩虹 — 橫掃一筆畫出彩虹緞帶","tip.eraser":"橡皮擦 — 擦回背景色",
+    "tip.stamp":"印章 — 點一下放置圖形","tip.line":"直線","tip.rect":"矩形","tip.ellipse":"橢圓","tip.photo":"相片 — 點一下卡片加入圖片",
+    "tip.move":"移動、縮放與變色 — 點選已放置的元素後拖曳移動、拉角縮放、選顏色變色，或點 ✕ 刪除","tip.text":"文字 — 點一下卡片後輸入。過長會自動換行；⏎ 強制換行。點卡片（或 ⌘/Ctrl+⏎）放置",
+    "tip.wiggle":"擺動 — 讓筆畫與印章動起來","tip.twinkle":"閃爍 — 透明度閃動，每個元素不同步（可與擺動疊加）","tip.twiggle":"擺動設定",
+    "tip.undo":"復原上一筆","tip.redo":"重做","tip.stampShape":"印章形狀","tip.frameStyle":"相片邊框","tip.fontFace":"字型","tip.borderStyle":"卡片邊框（套用到所有頁面）","tip.nativeColor":"選任意顏色 — 色相、飽和度、亮度","tip.hex":"輸入十六進位色碼",
+    "tip.newCard":"開始一張全新卡片（清除全部三頁）","tip.shareBtn":"取得卡片的分享連結","tip.saveCard":"下載整張卡片檔案（三頁、含動畫）","tip.tmplBtn":"從節日範本開始","tip.skin":"介面風格","tip.theme":"畫布配色主題",
+    "tip.mbUndo":"復原","tip.mbRedo":"重做","tip.shareClose":"關閉","tip.tmplClose":"關閉",
+  } };
+  let lang=(()=>{ try{ const s=localStorage.getItem(LANGSTORE); if(s&&LANGS[s]) return s; }catch(_){}
+    return (navigator.language||"").toLowerCase().indexOf("zh")===0 ? "zh" : "en"; })();
+  const t=(k,en)=>{ if(lang!=="en" && STR[lang] && STR[lang][k]!=null) return STR[lang][k]; return en!=null?en:k; };
+  const applyLang=()=>{ document.documentElement.setAttribute("lang", lang==="zh"?"zh-Hant":"en");
+    document.querySelectorAll("[data-i18n]").forEach(el=>{ const k=el.getAttribute("data-i18n");
+      if(el.dataset.en==null) el.dataset.en=el.textContent;                       // stash the original English once
+      el.textContent = lang==="en" ? el.dataset.en : (t(k,el.dataset.en)); });
+    document.querySelectorAll("[data-i18n-title]").forEach(el=>{ const k=el.getAttribute("data-i18n-title");
+      if(el.dataset.enTitle==null) el.dataset.enTitle=el.getAttribute("title")||"";
+      el.setAttribute("title", lang==="en" ? el.dataset.enTitle : t(k,el.dataset.enTitle)); });
+    document.querySelectorAll("[data-i18n-ph]").forEach(el=>{ const k=el.getAttribute("data-i18n-ph");
+      if(el.dataset.enPh==null) el.dataset.enPh=el.getAttribute("placeholder")||"";
+      el.setAttribute("placeholder", lang==="en" ? el.dataset.enPh : t(k,el.dataset.enPh)); }); };
+  const setLang=l=>{ lang=(l&&LANGS[l])?l:"en"; try{localStorage.setItem(LANGSTORE,lang);}catch(_){}
+    const ls=$("langSel"); if(ls) ls.value=lang; applyLang(); renderPanelTabs(); renderTmplGrid(); buildPalette(); refresh(); };
   const THEMES={
     Aurora:{bg:"#0b1020",colors:["#7df9ff","#b794f6","#f472b6","#fbbf24","#34d399","#f8fafc"]},
     Riso:{bg:"#f4efe6",colors:["#ff5470","#2d6cdf","#ffcf3f","#00a878","#1a1a1a","#8a5a44"]},
@@ -365,7 +410,7 @@
   // ── Card pages: Front / Inside / Back (each its own drawing; the current one lives in #active) ──
   const PANELS=[["front","Front"],["inside","Inside"],["back","Back"]];
   const renderPanelTabs=()=>{ const host=$("panelTabs"); if(!host) return; host.innerHTML="";
-    PANELS.forEach(([id,label])=>{ const b=document.createElement("button"); b.type="button"; b.className="ptab"+(id===panel?" on":"");
+    PANELS.forEach(([id,label])=>{ label=t("panel."+id,label); const b=document.createElement("button"); b.type="button"; b.className="ptab"+(id===panel?" on":"");
       b.textContent=label; b.onclick=()=>switchPanel(id); host.appendChild(b); }); };
   const switchPanel=p=>{ if(!panels.hasOwnProperty(p)||p===panel) return;
     if(typeof clearSel==="function") clearSel();
@@ -724,7 +769,7 @@
   $("undo").onclick=()=>{ clearSel(); const els=[...active.children]; if(!els.length) return; undone.push(els[els.length-1]); active.removeChild(els[els.length-1]); save(); refresh(); };
   $("redo").onclick=()=>{ const el=undone.pop(); if(el){ active.appendChild(el); save(); refresh(); } };
   $("clearSess").onclick=()=>{ clearSel(); active.innerHTML=""; undone=[]; save(); refresh(); };
-  $("newCanvas").onclick=()=>{ if(!confirm("Start a fresh card? This clears all three pages on this device.")) return; clearSel(); panels.front=panels.inside=panels.back=""; committed.innerHTML=""; active.innerHTML=""; undone=[]; panel="front"; cardBg=null; renderPanelTabs(); save(); refresh(); };
+  $("newCanvas").onclick=()=>{ if(!confirm(t("confirm.new","Start a fresh card? This clears all three pages on this device."))) return; clearSel(); panels.front=panels.inside=panels.back=""; committed.innerHTML=""; active.innerHTML=""; undone=[]; panel="front"; cardBg=null; renderPanelTabs(); save(); refresh(); };
 
   // ── Commit ──
   $("commit").onclick=()=>{ if(nContrib>=CAP || !active.children.length) return;
@@ -756,7 +801,7 @@
     if(tool==="move" && selEl){ recolorEl(selEl,v); drawSel(); save(); refresh(); } };   // Arrange tool: a colour choice repaints the selected element
   nc.oninput=()=>setColor(nc.value);
   hexIn.onchange=()=>{ let v=hexIn.value.trim().replace(/^#?/,""); if(/^([0-9a-f]{6})$/i.test(v)) setColor("#"+v.toLowerCase()); else if(/^([0-9a-f]{3})$/i.test(v)) setColor("#"+[...v].map(c=>c+c).join("").toLowerCase()); else hexIn.value=color.toUpperCase(); };
-  const buildPalette=()=>{ paletteEl.innerHTML="<span class='lbl'>Palette</span>";
+  const buildPalette=()=>{ paletteEl.innerHTML="<span class='lbl'>"+t("lbl.palette","Palette")+"</span>";
     THEMES[themeName].colors.forEach(c=>{ const b=document.createElement("button"); b.className="swatch"; b.style.background=c; b.title=c; b.onclick=()=>{ setColor(c); b.classList.add("on"); }; paletteEl.appendChild(b); }); };
 
   // ── Widths / theme ──
@@ -845,21 +890,39 @@
 
   // ── Templates: occasion starter cards (a template = a saved card → load, then personalise) ──
   const TEMPLATES=[
-    {chip:"🎂",label:"Birthday",bg:"#1a1030",ink:"#ffd166",emoji:"🎂",front:"Happy Birthday!",inside:"Wishing you a wonderful day\nand a year full of joy 🎉",font:"fun",border:"dots"},
-    {chip:"🎄",label:"Christmas",bg:"#0c2a1c",ink:"#ffd27f",emoji:"🎄",front:"Merry Christmas",inside:"Warmth, peace & joy\nthis holiday season ❄️",font:"serif",border:"line"},
-    {chip:"💐",label:"Get Well",bg:"#12233a",ink:"#7fe0c8",emoji:"💐",front:"Get Well Soon",inside:"Thinking of you —\nrest up & feel better soon 💛",font:"hand",border:"rounded"},
-    {chip:"💌",label:"Thank You",bg:"#2a1b12",ink:"#ffcf87",emoji:"💌",front:"Thank You",inside:"So grateful for you —\nthank you, truly 🙏",font:"hand",border:"dashed"},
-    {chip:"🎉",label:"Congratulations",bg:"#1a0f2e",ink:"#ffd166",emoji:"🎉",front:"Congratulations!",inside:"So proud of you —\nyou earned every bit of it 🌟",font:"fun",border:"dots"},
-    {chip:"🐣",label:"Easter",bg:"#efe6ff",ink:"#9a4fd0",emoji:"🐣",front:"Happy Easter",inside:"Wishing you a bright,\nhoppy Easter 🌷",font:"fun",border:"dots"},
-    {chip:"🦃",label:"Thanksgiving",bg:"#33200e",ink:"#ffb347",emoji:"🦃",front:"Happy Thanksgiving",inside:"Grateful to share\nthis day with you 🍂",font:"serif",border:"line"},
-    {chip:"🎃",label:"Halloween",bg:"#140a1e",ink:"#ff7a18",emoji:"🎃",front:"Happy Halloween",inside:"Have a spook-tacular\nnight of treats 👻",font:"bold",border:"dashed"},
-    {chip:"🎆",label:"4th of July",bg:"#0a1430",ink:"#ff5470",emoji:"🎆",front:"Happy 4th of July",inside:"Celebrate free\n& bright ✨🎇",font:"bold",border:"line"},
-    {chip:"🎇",label:"New Year",bg:"#0a0a18",ink:"#ffd166",emoji:"🥳",front:"Happy New Year!",inside:"To new beginnings\n& bright days ahead 🎉",font:"fun",border:"dots"},
-    {chip:"🧧",label:"Lunar New Year",bg:"#3a0d0d",ink:"#ffd700",emoji:"🧧",front:"新年快乐",inside:"Luck, health &\nprosperity to you 🏮",font:"serif",border:"double"},
-    {chip:"🌙",label:"Ramadan",bg:"#0c1030",ink:"#f5d76e",emoji:"🌙",front:"Ramadan Mubarak",inside:"Wishing you a blessed,\npeaceful Ramadan 🕌",font:"serif",border:"double"},
-    {chip:"🏮",label:"Lantern Festival",bg:"#3a0f0f",ink:"#ffcf3f",emoji:"🏮",front:"元宵节快乐",inside:"Wishing you light,\nwarmth & togetherness 🏮",font:"serif",border:"double"},
-    {chip:"🥮",label:"Moon Festival",bg:"#0c1428",ink:"#ffd166",emoji:"🌕",front:"中秋节快乐",inside:"Under one full moon —\nreunion, peace & joy 🥮",font:"serif",border:"rounded"},
+    {id:"birthday",chip:"🎂",label:"Birthday",bg:"#1a1030",ink:"#ffd166",emoji:"🎂",front:"Happy Birthday!",inside:"Wishing you a wonderful day\nand a year full of joy 🎉",font:"fun",border:"dots"},
+    {id:"christmas",chip:"🎄",label:"Christmas",bg:"#0c2a1c",ink:"#ffd27f",emoji:"🎄",front:"Merry Christmas",inside:"Warmth, peace & joy\nthis holiday season ❄️",font:"serif",border:"line"},
+    {id:"getwell",chip:"💐",label:"Get Well",bg:"#12233a",ink:"#7fe0c8",emoji:"💐",front:"Get Well Soon",inside:"Thinking of you —\nrest up & feel better soon 💛",font:"hand",border:"rounded"},
+    {id:"thankyou",chip:"💌",label:"Thank You",bg:"#2a1b12",ink:"#ffcf87",emoji:"💌",front:"Thank You",inside:"So grateful for you —\nthank you, truly 🙏",font:"hand",border:"dashed"},
+    {id:"congrats",chip:"🎉",label:"Congratulations",bg:"#1a0f2e",ink:"#ffd166",emoji:"🎉",front:"Congratulations!",inside:"So proud of you —\nyou earned every bit of it 🌟",font:"fun",border:"dots"},
+    {id:"easter",chip:"🐣",label:"Easter",bg:"#efe6ff",ink:"#9a4fd0",emoji:"🐣",front:"Happy Easter",inside:"Wishing you a bright,\nhoppy Easter 🌷",font:"fun",border:"dots"},
+    {id:"thanksgiving",chip:"🦃",label:"Thanksgiving",bg:"#33200e",ink:"#ffb347",emoji:"🦃",front:"Happy Thanksgiving",inside:"Grateful to share\nthis day with you 🍂",font:"serif",border:"line"},
+    {id:"halloween",chip:"🎃",label:"Halloween",bg:"#140a1e",ink:"#ff7a18",emoji:"🎃",front:"Happy Halloween",inside:"Have a spook-tacular\nnight of treats 👻",font:"bold",border:"dashed"},
+    {id:"july4",chip:"🎆",label:"4th of July",bg:"#0a1430",ink:"#ff5470",emoji:"🎆",front:"Happy 4th of July",inside:"Celebrate free\n& bright ✨🎇",font:"bold",border:"line"},
+    {id:"newyear",chip:"🎇",label:"New Year",bg:"#0a0a18",ink:"#ffd166",emoji:"🥳",front:"Happy New Year!",inside:"To new beginnings\n& bright days ahead 🎉",font:"fun",border:"dots"},
+    {id:"lunar",chip:"🧧",label:"Lunar New Year",bg:"#3a0d0d",ink:"#ffd700",emoji:"🧧",front:"新年快樂",inside:"Luck, health &\nprosperity to you 🏮",font:"serif",border:"double"},
+    {id:"ramadan",chip:"🌙",label:"Ramadan",bg:"#0c1030",ink:"#f5d76e",emoji:"🌙",front:"Ramadan Mubarak",inside:"Wishing you a blessed,\npeaceful Ramadan 🕌",font:"serif",border:"double"},
+    {id:"lantern",chip:"🏮",label:"Lantern Festival",bg:"#3a0f0f",ink:"#ffcf3f",emoji:"🏮",front:"元宵節快樂",inside:"Wishing you light,\nwarmth & togetherness 🏮",font:"serif",border:"double"},
+    {id:"moon",chip:"🥮",label:"Moon Festival",bg:"#0c1428",ink:"#ffd166",emoji:"🌕",front:"中秋節快樂",inside:"Under one full moon —\nreunion, peace & joy 🥮",font:"serif",border:"rounded"},
   ];
+  // Traditional-Chinese template messages (label / front / inside) — one map per added language
+  const TMPL_ZH={
+    birthday:{label:"生日",front:"生日快樂！",inside:"祝你有美好的一天\n和充滿喜悅的一年 🎉"},
+    christmas:{label:"聖誕",front:"聖誕快樂",inside:"願這個佳節\n溫暖、平安、喜樂 ❄️"},
+    getwell:{label:"早日康復",front:"早日康復",inside:"掛念著你 —\n好好休息，快點好起來 💛"},
+    thankyou:{label:"謝謝",front:"謝謝你",inside:"有你真好 —\n真心感謝 🙏"},
+    congrats:{label:"恭喜",front:"恭喜！",inside:"以你為傲 —\n這一切都是你應得的 🌟"},
+    easter:{label:"復活節",front:"復活節快樂",inside:"祝你有個明亮、\n蹦蹦跳跳的復活節 🌷"},
+    thanksgiving:{label:"感恩節",front:"感恩節快樂",inside:"很感恩能與你\n共度這一天 🍂"},
+    halloween:{label:"萬聖節",front:"萬聖節快樂",inside:"祝你有個\n驚喜連連的夜晚 👻"},
+    july4:{label:"美國國慶",front:"國慶快樂",inside:"自由、明亮地\n盡情慶祝 ✨🎇"},
+    newyear:{label:"新年",front:"新年快樂！",inside:"迎接新的開始\n與美好的未來 🎉"},
+    lunar:{label:"農曆新年",front:"新年快樂",inside:"祝你好運、健康\n與豐盛 🏮"},
+    ramadan:{label:"齋戒月",front:"齋戒月平安",inside:"願你有個蒙福、\n平安的齋戒月 🕌"},
+    lantern:{label:"元宵節",front:"元宵節快樂",inside:"願你被光、溫暖\n與團圓圍繞 🏮"},
+    moon:{label:"中秋節",front:"中秋節快樂",inside:"同一輪明月下 —\n團圓、平安、喜樂 🥮"},
+  };
+  const tmplText=x=>{ const z=(lang==="zh"&&TMPL_ZH[x.id])||null; return {label:z?z.label:x.label, front:z?z.front:x.front, inside:z?z.inside:x.inside}; };
   const _tt=(txt,x,y,size,fill,fontKey,rec)=>{ const t=document.createElementNS(SVGNS,"text"); t.setAttribute("x",x); t.setAttribute("font-size",size); if(fill) t.setAttribute("fill",fill); if(fontKey) t.setAttribute("font-family",FONTS[fontKey]||FONTS.round); t.setAttribute("text-anchor","middle"); t.setAttribute("dominant-baseline","middle"); if(rec!==false) t.setAttribute("data-rec",JSON.stringify({k:"text",font:fontKey||"round"}));
     const lines=String(txt).split("\n"); t.setAttribute("y",(y-(lines.length-1)*size*0.64).toFixed(0));
     lines.forEach((ln,i)=>{ const ts=document.createElementNS(SVGNS,"tspan"); ts.setAttribute("x",x); ts.setAttribute("dy",i===0?"0":(size*1.28).toFixed(0)); ts.textContent=ln; t.appendChild(ts); }); return t; };
@@ -872,17 +935,22 @@
     g.appendChild(_bd(30,Object.assign({fill:"none",stroke:col},at), style==="rounded"?"30":null));
     if(style==="double") g.appendChild(_bd(42,{fill:"none",stroke:col,"stroke-width":"2"})); return g; };
   const _ser=els=>{ const tmp=document.createElementNS(SVGNS,"g"); els.forEach(e=>e&&tmp.appendChild(e)); return tmp.innerHTML; };
-  const useTemplate=t=>{ cardBg=t.bg;
-    panels.front =_ser([ _tb(t.border,t.ink), _te(t.emoji,375,355,205), _tt(t.front,375,610,64,t.ink,t.font) ]);
-    panels.inside=_ser([ _tb(t.border,t.ink), _tt(t.inside,375,490,48,t.ink,t.font), _te("💛",375,780,64) ]);
-    panels.back  =_ser([ _tb(t.border,t.ink) ]);
+  const useTemplate=x=>{ cardBg=x.bg; const m=tmplText(x);
+    panels.front =_ser([ _tb(x.border,x.ink), _te(x.emoji,375,355,205), _tt(m.front,375,610,64,x.ink,x.font) ]);
+    panels.inside=_ser([ _tb(x.border,x.ink), _tt(m.inside,375,490,48,x.ink,x.font), _te("💛",375,780,64) ]);
+    panels.back  =_ser([ _tb(x.border,x.ink) ]);
     panel="front"; active.innerHTML=panels.front; undone=[]; applyTheme(); renderPanelTabs(); save(); refresh(); $("tmplOverlay").hidden=true; };
-  (()=>{ const grid=$("tmplGrid"); if(grid) TEMPLATES.forEach(t=>{ const b=document.createElement("button"); b.className="tcard"; b.type="button"; b.innerHTML='<span class="tchip">'+t.chip+'</span><span>'+t.label+'</span>'; b.onclick=()=>useTemplate(t); grid.appendChild(b); }); })();
+  const renderTmplGrid=()=>{ const grid=$("tmplGrid"); if(!grid) return; grid.innerHTML="";
+    TEMPLATES.forEach(x=>{ const b=document.createElement("button"); b.className="tcard"; b.type="button";
+      b.innerHTML='<span class="tchip">'+x.chip+'</span><span></span>'; b.lastChild.textContent=tmplText(x).label;
+      b.onclick=()=>useTemplate(x); grid.appendChild(b); }); };
+  renderTmplGrid();
   $("tmplBtn").onclick=()=>{ $("tmplOverlay").hidden=false; };
   $("tmplClose").onclick=()=>{ $("tmplOverlay").hidden=true; };
   $("tmplOverlay").onclick=e=>{ if(e.target===$("tmplOverlay")) $("tmplOverlay").hidden=true; };
 
-  load(); renderPanelTabs(); applyTheme(); setColor(color); applyView(); refresh();
+  { const ls=$("langSel"); if(ls){ ls.value=lang; ls.onchange=()=>setLang(ls.value); } }
+  load(); applyLang(); renderPanelTabs(); applyTheme(); setColor(color); applyView(); refresh();
 })();
 </script>
 </body>
