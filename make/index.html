@@ -575,6 +575,12 @@
       while(src.firstChild) pg.appendChild(src.firstChild);
       root.appendChild(pg);
     });
+    // soft fold crease between pages so the opened card reads as separate pages
+    const cdefs=root.querySelector("defs")||root.appendChild(document.createElementNS(SVGNS,"defs"));
+    const lg=document.createElementNS(SVGNS,"linearGradient"); lg.setAttribute("id","crease"); lg.setAttribute("x1","0"); lg.setAttribute("x2","1"); lg.setAttribute("y1","0"); lg.setAttribute("y2","0");
+    [["0","0"],["0.5","0.2"],["1","0"]].forEach(([o,op])=>{ const s=document.createElementNS(SVGNS,"stop"); s.setAttribute("offset",o); s.setAttribute("stop-color","#000"); s.setAttribute("stop-opacity",op); lg.appendChild(s); });
+    cdefs.appendChild(lg);
+    for(let i=1;i<N;i++){ const band=document.createElementNS(SVGNS,"rect"); band.setAttribute("x",i*CW-9); band.setAttribute("y","0"); band.setAttribute("width","18"); band.setAttribute("height",CH); band.setAttribute("fill","url(#crease)"); root.appendChild(band); }
     const md=document.createElementNS(SVGNS,"metadata"); md.setAttribute("id","nftsale-card"); md.textContent=JSON.stringify(meta);
     root.insertBefore(md, root.firstChild);
     const doc='<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(root);
