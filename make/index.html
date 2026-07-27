@@ -218,8 +218,8 @@
     </select>
     <select id="theme" title="Canvas colour theme"></select>
     <button class="act" id="viewsvg">&lt;/&gt; SVG</button>
-    <button class="act" id="exportSvg" title="Export an animated SVG — the mintable, self-animating atom">⬇ SVG</button>
-    <select id="pngRes" title="PNG output resolution — small (800²) for a 1:1 cover, large for the HQ deliverable">
+    <button class="act pay" id="exportSvg" title="Download your whole card — animated, all three pages, in one file">⬇ Save card</button>
+    <select id="pngRes" class="card-hide" title="PNG output resolution">
       <option value="800">800² · cover</option>
       <option value="1000">1000²</option>
       <option value="1500">1500²</option>
@@ -227,7 +227,7 @@
       <option value="3000">3000² · ultra-HQ</option>
       <option value="4096">4096² · max</option>
     </select>
-    <button class="act pay" id="pngExport" title="Export a PNG at the chosen resolution — cover or HQ deliverable">⬇ PNG</button>
+    <button class="act card-hide" id="pngExport" title="Export a PNG">⬇ PNG</button>
   </footer>
 
   <!-- mobile-only bottom tool bar → opens slide-up sheets (the tool groups above) -->
@@ -562,11 +562,11 @@
     const root=document.createElementNS(SVGNS,"svg");
     root.setAttribute("xmlns",SVGNS);
     root.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:xlink","http://www.w3.org/1999/xlink");
-    root.setAttribute("viewBox",`0 0 ${CW} ${CH*N}`); root.setAttribute("width",CW); root.setAttribute("height",CH*N); // pages stacked → unfolded card
+    root.setAttribute("viewBox",`0 0 ${CW*N} ${CH}`); root.setAttribute("width",CW*N); root.setAttribute("height",CH); // pages SIDE BY SIDE → opened card
     const defs=svg.querySelector("defs"); if(defs) root.appendChild(defs.cloneNode(true));   // carry #mcyc + #sprayBoil filters
     const meta={format:"nftsale.card.v1",ratio:"3:4",w:CW,h:CH,bg:bgColor(),panels:[]};
     order.forEach((role,i)=>{
-      const pg=document.createElementNS(SVGNS,"g"); pg.setAttribute("transform",`translate(0 ${i*CH})`); pg.setAttribute("data-page",role);
+      const pg=document.createElementNS(SVGNS,"g"); pg.setAttribute("transform",`translate(${i*CW} 0)`); pg.setAttribute("data-page",role);
       const bgr=document.createElementNS(SVGNS,"rect"); bgr.setAttribute("width",CW); bgr.setAttribute("height",CH); bgr.setAttribute("fill",bgColor()); pg.appendChild(bgr);
       const src=document.createElementNS(SVGNS,"g"); src.innerHTML=panels[role]||"";         // parse this page's stored strokes (SVG-namespace innerHTML)
       const recEls=[...src.querySelectorAll("[data-rec]")];
