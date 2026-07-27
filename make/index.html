@@ -38,6 +38,12 @@
   .sh-row button,.sh-btn{border:2px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:11px;padding:10px 14px;font-weight:700;cursor:pointer;text-decoration:none;font-size:14px;display:inline-flex;align-items:center;gap:6px;justify-content:center}
   .sh-actions{display:flex;gap:8px} .sh-actions .sh-btn{flex:1}
   .sh-btn.primary{background:var(--accent);border-color:var(--accent);color:#0b0b12}
+  .tmplbox{position:relative;background:var(--panel);color:var(--ink);border:2px solid var(--line);border-radius:20px;padding:22px 22px 26px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .tmplbox h3{margin:2px 0 2px;font-size:22px;text-align:center} .tmplbox p{color:var(--dim);text-align:center;margin:0 0 16px;font-size:14px}
+  .tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(94px,1fr));gap:10px;max-height:60vh;overflow:auto}
+  .tcard{display:flex;flex-direction:column;align-items:center;gap:5px;padding:12px 6px;border:2px solid var(--line);border-radius:14px;background:var(--panel2);color:var(--ink);font-weight:700;font-size:12px;cursor:pointer;text-align:center}
+  .tcard:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .tcard .tchip{font-size:30px;line-height:1}
   button.tool,select,button.act{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);padding:7px 9px;font-size:14px;cursor:pointer;line-height:1}
   button.tool{min-width:36px}
   button.tool.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,var(--panel2));color:#fff}
@@ -251,6 +257,7 @@
   <div class="drawer" id="drawer"><pre id="svgview"></pre></div>
 
   <footer>
+    <button class="act" id="tmplBtn" title="Start from an occasion template">🎨 Templates</button>
     <button class="act primary card-hide" id="commit">＋ Add mark</button>
     <button class="act" id="clearSess">🧹 Clear page</button>
     <button class="act" id="newCanvas" title="Start a fresh card (clears all three pages)">🗑 New card</button>
@@ -301,6 +308,14 @@
       <div class="sh-actions"><a id="shareOpen" class="sh-btn" target="_blank" rel="noopener">👀 Preview</a><button id="shareSend" class="sh-btn primary">📤 Send it</button></div>
     </div>
   </div>
+  <div id="tmplOverlay" class="overlay" hidden>
+    <div class="tmplbox">
+      <button class="sh-x" id="tmplClose" title="Close">✕</button>
+      <h3>🎨 Start from a template</h3>
+      <p>Pick an occasion — then make it yours.</p>
+      <div class="tgrid" id="tmplGrid"></div>
+    </div>
+  </div>
 
 <script>
 (() => {
@@ -328,12 +343,12 @@
   const WIG={amp:7, dur:"0.52s", calc:"discrete"};      // twiggle-able wiggle params
   const TWK={base:1.9};                                  // twinkle tempo centre (s); each mark still varies ±30% around it
   let zoom=1, panX=0, panY=0, panning=false, ps=null;   // zoom / pan
-  const bgColor=()=>THEMES[themeName].bg;
+  let cardBg=null; const bgColor=()=>cardBg||THEMES[themeName].bg;   // cardBg = per-card override (templates set it; theme change clears it)
 
   // ── Persistence ──
-  const save=()=>{ try{ panels[panel]=active.innerHTML; localStorage.setItem(STORE, JSON.stringify({ t:themeName, p:panel, pn:panels })); }catch(_){} };
+  const save=()=>{ try{ panels[panel]=active.innerHTML; localStorage.setItem(STORE, JSON.stringify({ t:themeName, bg:cardBg, p:panel, pn:panels })); }catch(_){} };
   const load=()=>{ try{ const s=JSON.parse(localStorage.getItem(STORE)); if(!s) return;
-    if(s.t && THEMES[s.t]) themeName=s.t;
+    if(s.t && THEMES[s.t]) themeName=s.t; cardBg=s.bg||null;
     if(s.pn){ Object.assign(panels, s.pn); panel=(s.p && panels.hasOwnProperty(s.p))?s.p:"front"; }
     active.innerHTML=panels[panel]||""; committed.innerHTML=""; }catch(_){} };
   // ── Card pages: Front / Inside / Back (each its own drawing; the current one lives in #active) ──
@@ -623,7 +638,7 @@
   $("undo").onclick=()=>{ const els=[...active.children]; if(!els.length) return; undone.push(els[els.length-1]); active.removeChild(els[els.length-1]); save(); refresh(); };
   $("redo").onclick=()=>{ const el=undone.pop(); if(el){ active.appendChild(el); save(); refresh(); } };
   $("clearSess").onclick=()=>{ active.innerHTML=""; undone=[]; save(); refresh(); };
-  $("newCanvas").onclick=()=>{ if(!confirm("Start a fresh card? This clears all three pages on this device.")) return; panels.front=panels.inside=panels.back=""; committed.innerHTML=""; active.innerHTML=""; undone=[]; panel="front"; renderPanelTabs(); save(); refresh(); };
+  $("newCanvas").onclick=()=>{ if(!confirm("Start a fresh card? This clears all three pages on this device.")) return; panels.front=panels.inside=panels.back=""; committed.innerHTML=""; active.innerHTML=""; undone=[]; panel="front"; cardBg=null; renderPanelTabs(); save(); refresh(); };
 
   // ── Commit ──
   $("commit").onclick=()=>{ if(nContrib>=CAP || !active.children.length) return;
@@ -664,7 +679,7 @@
     b.onclick=()=>{ width=w; widthsEl.querySelectorAll(".width").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }; widthsEl.appendChild(b); });
   const themeSel=$("theme");
   Object.keys(THEMES).forEach(n=>{ const o=document.createElement("option"); o.value=n; o.textContent="Theme: "+n; themeSel.appendChild(o); });
-  themeSel.onchange=()=>{ themeName=themeSel.value; applyTheme(); save(); };
+  themeSel.onchange=()=>{ themeName=themeSel.value; cardBg=null; applyTheme(); save(); };
   const applyTheme=()=>{ bg.setAttribute("fill",bgColor()); themeSel.value=themeName; buildPalette(); };
 
   // ── App skin (whole-tool vibe; separate from the canvas colour theme) ──
@@ -740,6 +755,42 @@
   const refresh=()=>{ $("stN").textContent=nContrib; $("stCap").textContent=CAP; $("stPrice").textContent=nContrib*SLOT_FEE+HOLDER_FEE;
     $("undo").disabled=!active.children.length; $("redo").disabled=!undone.length;
     const sealed=nContrib>=CAP; $("commit").disabled=sealed||!active.children.length; $("stSeal").textContent=sealed?" · SEALED ✔":""; if(sealed) $("commit").textContent="● Sealed"; renderSource(); };
+
+  // ── Templates: occasion starter cards (a template = a saved card → load, then personalise) ──
+  const TEMPLATES=[
+    {chip:"🎂",label:"Birthday",bg:"#1a1030",ink:"#ffd166",emoji:"🎂",front:"Happy Birthday!",inside:"Wishing you a wonderful day\nand a year full of joy 🎉",font:"fun",border:"dots"},
+    {chip:"🎄",label:"Christmas",bg:"#0c2a1c",ink:"#ffd27f",emoji:"🎄",front:"Merry Christmas",inside:"Warmth, peace & joy\nthis holiday season ❄️",font:"serif",border:"line"},
+    {chip:"💐",label:"Get Well",bg:"#12233a",ink:"#7fe0c8",emoji:"💐",front:"Get Well Soon",inside:"Thinking of you —\nrest up & feel better soon 💛",font:"hand",border:"rounded"},
+    {chip:"💌",label:"Thank You",bg:"#2a1b12",ink:"#ffcf87",emoji:"💌",front:"Thank You",inside:"So grateful for you —\nthank you, truly 🙏",font:"hand",border:"dashed"},
+    {chip:"🐣",label:"Easter",bg:"#efe6ff",ink:"#9a4fd0",emoji:"🐣",front:"Happy Easter",inside:"Wishing you a bright,\nhoppy Easter 🌷",font:"fun",border:"dots"},
+    {chip:"🦃",label:"Thanksgiving",bg:"#33200e",ink:"#ffb347",emoji:"🦃",front:"Happy Thanksgiving",inside:"Grateful to share\nthis day with you 🍂",font:"serif",border:"line"},
+    {chip:"🎃",label:"Halloween",bg:"#140a1e",ink:"#ff7a18",emoji:"🎃",front:"Happy Halloween",inside:"Have a spook-tacular\nnight of treats 👻",font:"bold",border:"dashed"},
+    {chip:"🎆",label:"4th of July",bg:"#0a1430",ink:"#ff5470",emoji:"🎆",front:"Happy 4th of July",inside:"Celebrate free\n& bright ✨🎇",font:"bold",border:"line"},
+    {chip:"🎇",label:"New Year",bg:"#0a0a18",ink:"#ffd166",emoji:"🥳",front:"Happy New Year!",inside:"To new beginnings\n& bright days ahead 🎉",font:"fun",border:"dots"},
+    {chip:"🧧",label:"Lunar New Year",bg:"#3a0d0d",ink:"#ffd700",emoji:"🧧",front:"新年快乐",inside:"Luck, health &\nprosperity to you 🏮",font:"serif",border:"double"},
+    {chip:"🌙",label:"Ramadan",bg:"#0c1030",ink:"#f5d76e",emoji:"🌙",front:"Ramadan Mubarak",inside:"Wishing you a blessed,\npeaceful Ramadan 🕌",font:"serif",border:"double"},
+  ];
+  const _tt=(txt,x,y,size,fill,fontKey,rec)=>{ const t=document.createElementNS(SVGNS,"text"); t.setAttribute("x",x); t.setAttribute("font-size",size); if(fill) t.setAttribute("fill",fill); if(fontKey) t.setAttribute("font-family",FONTS[fontKey]||FONTS.round); t.setAttribute("text-anchor","middle"); t.setAttribute("dominant-baseline","middle"); if(rec!==false) t.setAttribute("data-rec",JSON.stringify({k:"text",font:fontKey||"round"}));
+    const lines=String(txt).split("\n"); t.setAttribute("y",(y-(lines.length-1)*size*0.64).toFixed(0));
+    lines.forEach((ln,i)=>{ const ts=document.createElementNS(SVGNS,"tspan"); ts.setAttribute("x",x); ts.setAttribute("dy",i===0?"0":(size*1.28).toFixed(0)); ts.textContent=ln; t.appendChild(ts); }); return t; };
+  const _te=(emoji,x,y,size)=>{ const g=document.createElementNS(SVGNS,"g"); g.setAttribute("transform",`translate(${x} ${y})`);
+    const t=document.createElementNS(SVGNS,"text"); t.setAttribute("font-size",size); t.setAttribute("text-anchor","middle"); t.setAttribute("dominant-baseline","middle"); t.textContent=emoji;
+    const an=document.createElementNS(SVGNS,"animateTransform"); an.setAttribute("attributeName","transform"); an.setAttribute("type","rotate"); an.setAttribute("values","-5;5;-5"); an.setAttribute("dur","3.4s"); an.setAttribute("repeatCount","indefinite"); t.appendChild(an);
+    g.appendChild(t); return g; };
+  const _tb=(style,col)=>{ if(!style||style==="none") return null; const g=document.createElementNS(SVGNS,"g"); g.setAttribute("data-border","1");
+    const at={line:{"stroke-width":"6"},rounded:{"stroke-width":"6"},double:{"stroke-width":"4"},dashed:{"stroke-width":"5","stroke-linecap":"round","stroke-dasharray":"18 13"},dots:{"stroke-width":"7","stroke-linecap":"round","stroke-dasharray":"0.1 20"}}[style]||{"stroke-width":"6"};
+    g.appendChild(_bd(30,Object.assign({fill:"none",stroke:col},at), style==="rounded"?"30":null));
+    if(style==="double") g.appendChild(_bd(42,{fill:"none",stroke:col,"stroke-width":"2"})); return g; };
+  const _ser=els=>{ const tmp=document.createElementNS(SVGNS,"g"); els.forEach(e=>e&&tmp.appendChild(e)); return tmp.innerHTML; };
+  const useTemplate=t=>{ cardBg=t.bg;
+    panels.front =_ser([ _tb(t.border,t.ink), _te(t.emoji,375,355,205), _tt(t.front,375,610,64,t.ink,t.font) ]);
+    panels.inside=_ser([ _tb(t.border,t.ink), _tt(t.inside,375,490,48,t.ink,t.font), _te("💛",375,780,64) ]);
+    panels.back  =_ser([ _tb(t.border,t.ink) ]);
+    panel="front"; active.innerHTML=panels.front; undone=[]; applyTheme(); renderPanelTabs(); save(); refresh(); $("tmplOverlay").hidden=true; };
+  (()=>{ const grid=$("tmplGrid"); if(grid) TEMPLATES.forEach(t=>{ const b=document.createElement("button"); b.className="tcard"; b.type="button"; b.innerHTML='<span class="tchip">'+t.chip+'</span><span>'+t.label+'</span>'; b.onclick=()=>useTemplate(t); grid.appendChild(b); }); })();
+  $("tmplBtn").onclick=()=>{ $("tmplOverlay").hidden=false; };
+  $("tmplClose").onclick=()=>{ $("tmplOverlay").hidden=true; };
+  $("tmplOverlay").onclick=e=>{ if(e.target===$("tmplOverlay")) $("tmplOverlay").hidden=true; };
 
   load(); renderPanelTabs(); applyTheme(); setColor(color); applyView(); refresh();
 })();
