@@ -177,7 +177,7 @@
       </select>
     </div>
     <div class="group" data-sheet="stamp"><span class="lbl">Arrange</span>
-      <button class="tool" data-tool="move" title="Move &amp; resize — tap anything you've placed, then drag to move it, drag its corner to resize, or tap ✕ to remove">🤚</button>
+      <button class="tool" data-tool="move" title="Move, resize &amp; recolour — tap anything you've placed, then drag to move it, drag its corner to resize, pick a colour to recolour it, or tap ✕ to remove">🤚</button>
     </div>
     <div class="sep"></div>
     <div class="group" data-sheet="text"><span class="lbl">Text</span>
@@ -605,6 +605,11 @@
   const selectEl=el=>{ selEl=el; selBase=el.getAttribute("transform")||""; const b=canvasBBox(el);
     if(b){ selCx=(b.minx+b.maxx)/2; selCy=(b.miny+b.maxy)/2; } else { selCx=CW/2; selCy=CH/2; }
     selMx=0; selMy=0; selK=1; drawSel(); };
+  // recolour a placed element (recurse groups: spray dots, fractal strokes, photo frames) — never repaint an uploaded image
+  const recolorEl=(el,c)=>{ if(!el) return; const tag=(el.tagName||"").toLowerCase(); if(tag==="image") return;
+    if(tag==="g" && el.children) [...el.children].forEach(ch=>recolorEl(ch,c));
+    const st=el.getAttribute&&el.getAttribute("stroke"); if(st && st!=="none") el.setAttribute("stroke",c);
+    const fl=el.getAttribute&&el.getAttribute("fill"); if(fl && fl!=="none") el.setAttribute("fill",c); };
   const startMove=(e,p)=>{ const h=e.target && e.target.getAttribute && e.target.getAttribute("data-handle");
     if(h==="del"){ if(selEl){ selEl.remove(); clearSel(); undone=[]; save(); refresh(); } return; }
     if(h==="resize" && selEl){ svg.setPointerCapture(e.pointerId); selMode="resize"; rk0=selK; rd0=Math.hypot(p.x-selCx,p.y-selCy)||1; return; }
@@ -734,7 +739,8 @@
 
   // ── Colour ──
   const nc=$("nativeColor"), hexIn=$("hex"), paletteEl=$("palette");
-  const setColor=v=>{ color=v; nc.value=v; hexIn.value=v.toUpperCase(); paletteEl.querySelectorAll(".swatch").forEach(x=>x.classList.remove("on")); };
+  const setColor=v=>{ color=v; nc.value=v; hexIn.value=v.toUpperCase(); paletteEl.querySelectorAll(".swatch").forEach(x=>x.classList.remove("on"));
+    if(tool==="move" && selEl){ recolorEl(selEl,v); drawSel(); save(); refresh(); } };   // Arrange tool: a colour choice repaints the selected element
   nc.oninput=()=>setColor(nc.value);
   hexIn.onchange=()=>{ let v=hexIn.value.trim().replace(/^#?/,""); if(/^([0-9a-f]{6})$/i.test(v)) setColor("#"+v.toLowerCase()); else if(/^([0-9a-f]{3})$/i.test(v)) setColor("#"+[...v].map(c=>c+c).join("").toLowerCase()); else hexIn.value=color.toUpperCase(); };
   const buildPalette=()=>{ paletteEl.innerHTML="<span class='lbl'>Palette</span>";
