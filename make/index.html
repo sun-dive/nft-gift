@@ -283,15 +283,6 @@
     <button class="act pay" id="shareBtn" data-i18n="foot.share" data-i18n-title="tip.shareBtn" title="Get a shareable link to your card">🔗 Share card</button>
     <button class="act" id="exportSvg" data-i18n="foot.save" data-i18n-title="tip.saveCard" title="Download your whole card as a file (all three pages, animated)">⬇ Save card</button>
     <button class="act pay" id="immortalizeBtn" data-i18n="foot.immortalize" data-i18n-title="tip.immortalize" title="Make this card immortal — mint it on-chain, owned by you forever">✨ Immortalize</button>
-    <select id="pngRes" class="card-hide" title="PNG output resolution">
-      <option value="800">800² · cover</option>
-      <option value="1000">1000²</option>
-      <option value="1500">1500²</option>
-      <option value="2000">2000²</option>
-      <option value="3000">3000² · ultra-HQ</option>
-      <option value="4096">4096² · max</option>
-    </select>
-    <button class="act card-hide" id="pngExport" title="Export a PNG">⬇ PNG</button>
   </footer>
 
   <!-- mobile-only bottom tool bar → opens slide-up sheets (the tool groups above) -->
@@ -830,14 +821,6 @@
     $("svgview").innerHTML=`<span class="g">&lt;!-- ${panel} page · ${bytes} bytes · rendered natively --&gt;</span>\n`+html.replace(/</g,"&lt;").replace(/&lt;g /g,'<span class="g">&lt;g </span>'); };
 
   // ── Ultra-HQ export (always the FULL canvas, ignoring zoom/pan) ──
-  const rasterPNG=(SIZE,name)=>{ const H=SIZE, W=Math.round(SIZE*CW/CH); const clone=svg.cloneNode(true); clone.querySelector("#brushCursor")?.remove(); // SIZE = height; width follows the 3:4 card ratio
-    clone.setAttribute("viewBox",`0 0 ${CW} ${CH}`); clone.setAttribute("width",W); clone.setAttribute("height",H);
-    clone.setAttributeNS("http://www.w3.org/2000/xmlns/","xmlns:xlink","http://www.w3.org/1999/xlink"); // so xlink:href image frames rasterize, not blank
-    const url=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(clone)],{type:"image/svg+xml"})); const img=new Image();
-    img.onload=()=>{ const cv=document.createElement("canvas"); cv.width=W; cv.height=H; const cx=cv.getContext("2d"); cx.fillStyle=bgColor(); cx.fillRect(0,0,W,H); cx.drawImage(img,0,0,W,H); URL.revokeObjectURL(url);
-      cv.toBlob(b=>{ const a=document.createElement("a"); a.href=URL.createObjectURL(b); a.download=name; a.click(); },"image/png"); };
-    img.onerror=()=>{ alert("Export failed in this browser — try Chrome/Edge/Firefox."); URL.revokeObjectURL(url); }; img.src=url; };
-  $("pngExport").onclick=()=>{ const S=Math.max(64,Math.min(4096,parseInt($("pngRes").value,10)||800)); rasterPNG(S,`card-${S}px.png`); }; // chosen height; width follows 3:4
 
   // ── Export a standalone ANIMATED SVG (vector + SMIL preserved: wiggle/grow/mandelbrot-cycle) — the mintable atom ──
   // ── Export the WHOLE card: Front/Inside/Back stacked into one self-contained SVG + nftsale.card.v1 metadata ──
