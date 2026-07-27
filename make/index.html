@@ -27,7 +27,8 @@
   .card-hide{display:none!important}  /* tools trimmed from the card maker (kept in the Draw tool for the multiverse) */
   #textInput{position:fixed;display:none;z-index:60;transform:translate(-50%,-50%);min-width:120px;max-width:82vw;
     padding:6px 12px;border:2px solid var(--accent);border-radius:9px;background:var(--panel);color:var(--ink);
-    font:600 22px var(--font);text-align:center;outline:none;box-shadow:0 8px 26px rgba(0,0,0,.35)}
+    font:600 22px var(--font);text-align:center;outline:none;box-shadow:0 8px 26px rgba(0,0,0,.35);
+    resize:none;line-height:1.3;white-space:pre;overflow:hidden}
   .overlay{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:18px}
   .overlay[hidden]{display:none}
   .sharebox{position:relative;background:var(--panel);color:var(--ink);border:2px solid var(--line);border-radius:20px;padding:26px 24px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -180,7 +181,7 @@
     </div>
     <div class="sep"></div>
     <div class="group" data-sheet="text"><span class="lbl">Text</span>
-      <button class="tool" data-tool="text" title="Text — tap the card, then type your message">🅣</button>
+      <button class="tool" data-tool="text" title="Text — tap the card, then type. ⏎ starts a new line; tap away (or ⌘/Ctrl+⏎) to place it">🅣</button>
       <select id="fontFace" title="Font">
         <option value="round">Aa · Rounded</option>
         <option value="fun">Aa · Fun</option>
@@ -300,7 +301,7 @@
     <button class="mb" data-sheet="save"><b>⬇</b>Save</button>
   </nav>
   <div id="sheetBackdrop"></div>
-  <input id="textInput" type="text" placeholder="Type…" spellcheck="false" autocomplete="off" autocapitalize="sentences">
+  <textarea id="textInput" rows="1" wrap="off" placeholder="Type your message… ⏎ = new line" spellcheck="false" autocomplete="off" autocapitalize="sentences"></textarea>
   <input id="photoFile" type="file" accept="image/*" style="display:none">
   <div id="shareOverlay" class="overlay" hidden>
     <div class="sharebox">
@@ -546,19 +547,22 @@
   const fontKey=()=>($("fontFace")?$("fontFace").value:"round");
   const fontStack=()=>FONTS[fontKey()]||FONTS.round;
   let textPt=null;
-  const startText=(e,p)=>{ textPt=p; const ti=$("textInput"); ti.value=""; ti.style.display="block";
+  const growText=()=>{ const ti=$("textInput"); ti.style.height="auto"; ti.style.height=ti.scrollHeight+"px"; };
+  const startText=(e,p)=>{ textPt=p; const ti=$("textInput"); ti.value=""; ti.style.display="block"; ti.style.height="auto";
     ti.style.left=e.clientX+"px"; ti.style.top=e.clientY+"px"; ti.style.color=color; ti.style.fontFamily=fontStack();
-    setTimeout(()=>ti.focus(),0); };
-  const placeText=()=>{ const ti=$("textInput"), val=ti.value.trim(); ti.style.display="none";
-    if(!val||!textPt){ textPt=null; return; }
-    const fs=Math.max(24,Math.round(width*8)), t=document.createElementNS(SVGNS,"text");
-    t.setAttribute("x",textPt.x.toFixed(1)); t.setAttribute("y",textPt.y.toFixed(1)); t.setAttribute("fill",color);
+    setTimeout(()=>{ ti.focus(); growText(); },0); };
+  const placeText=()=>{ const ti=$("textInput"), val=ti.value.replace(/\s+$/,"").replace(/^\n+/,""); ti.style.display="none";
+    if(!val.trim()||!textPt){ textPt=null; return; }
+    const lines=val.split("\n"), fs=Math.max(24,Math.round(width*8)), t=document.createElementNS(SVGNS,"text");
+    t.setAttribute("x",textPt.x.toFixed(1)); t.setAttribute("y",(textPt.y-(lines.length-1)*fs*0.64).toFixed(1)); t.setAttribute("fill",color);
     t.setAttribute("font-family",fontStack()); t.setAttribute("font-size",fs); t.setAttribute("text-anchor","middle"); t.setAttribute("dominant-baseline","middle");
-    t.textContent=val; if(wiggle) t.setAttribute("filter","url(#sprayBoil)"); active.appendChild(t);
+    lines.forEach((ln,i)=>{ const ts=document.createElementNS(SVGNS,"tspan"); ts.setAttribute("x",textPt.x.toFixed(1)); ts.setAttribute("dy",i===0?"0":(fs*1.28).toFixed(0)); ts.textContent=ln; t.appendChild(ts); });
+    if(wiggle) t.setAttribute("filter","url(#sprayBoil)"); active.appendChild(t);
     if(twinkle) applyTwinkle(t);
     setRec(t,{k:"text",txt:val,col:color,fs,font:fontKey(),x:+textPt.x.toFixed(1),y:+textPt.y.toFixed(1),wig:wiggle?1:0,twk:twinkle?1:0});
     undone=[]; textPt=null; save(); refresh(); };
-  $("textInput").onkeydown=e=>{ if(e.key==="Enter"){ e.preventDefault(); placeText(); } else if(e.key==="Escape"){ e.preventDefault(); $("textInput").style.display="none"; textPt=null; } };
+  $("textInput").oninput=growText;
+  $("textInput").onkeydown=e=>{ if(e.key==="Enter"&&(e.metaKey||e.ctrlKey)){ e.preventDefault(); placeText(); } else if(e.key==="Escape"){ e.preventDefault(); $("textInput").style.display="none"; textPt=null; } };
   $("textInput").onblur=()=>placeText();
 
   // ── Arrange tool (move / resize / delete a placed element) ──────────────────
