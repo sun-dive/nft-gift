@@ -436,15 +436,15 @@
   const XLINK="http://www.w3.org/1999/xlink";
   const _im=(href,x,y,w,h)=>{ const e=document.createElementNS(SVGNS,"image"); e.setAttributeNS(XLINK,"xlink:href",href); e.setAttribute("x",x.toFixed(1)); e.setAttribute("y",y.toFixed(1)); e.setAttribute("width",w.toFixed(1)); e.setAttribute("height",h.toFixed(1)); e.setAttribute("preserveAspectRatio","xMidYMid slice"); return e; };
   const _rc=(x,y,w,h,at)=>{ const r=document.createElementNS(SVGNS,"rect"); r.setAttribute("x",x.toFixed(1)); r.setAttribute("y",y.toFixed(1)); r.setAttribute("width",w.toFixed(1)); r.setAttribute("height",h.toFixed(1)); for(const k in at) r.setAttribute(k,at[k]); return r; };
-  const FRAMES={
-    none:(g,x,y,w,h,href)=>{ g.appendChild(_im(href,x,y,w,h)); g.appendChild(_rc(x,y,w,h,{fill:"none",stroke:"rgba(0,0,0,.28)","stroke-width":Math.max(2,w*0.006)})); },
-    classic:(g,x,y,w,h,href)=>{ const b=Math.max(9,w*0.035); g.appendChild(_rc(x-b,y-b,w+2*b,h+2*b,{fill:"#fff",stroke:"rgba(0,0,0,.18)","stroke-width":1})); g.appendChild(_im(href,x,y,w,h)); g.appendChild(_rc(x,y,w,h,{fill:"none",stroke:"rgba(0,0,0,.2)","stroke-width":1.5})); },
-    polaroid:(g,x,y,w,h,href)=>{ const p=Math.max(10,w*0.05), bot=Math.max(34,w*0.2); g.appendChild(_rc(x-p,y-p,w+2*p,h+p+bot,{fill:"#fffdf5",stroke:"rgba(0,0,0,.14)","stroke-width":1,rx:"3"})); g.appendChild(_im(href,x,y,w,h)); },
-    tape:(g,x,y,w,h,href)=>{ g.appendChild(_im(href,x,y,w,h)); g.appendChild(_rc(x,y,w,h,{fill:"none",stroke:"rgba(255,255,255,.85)","stroke-width":Math.max(4,w*0.02)}));
-      const tw=Math.max(30,w*0.16), th=Math.max(12,w*0.05), tape=(tx,ty,rot)=>{ const t=_rc(tx-tw/2,ty-th/2,tw,th,{fill:"rgba(240,224,132,.72)",stroke:"rgba(0,0,0,.06)","stroke-width":1}); t.setAttribute("transform",`rotate(${rot} ${tx.toFixed(1)} ${ty.toFixed(1)})`); g.appendChild(t); };
+  const FRAMES={   // SVG-safe: solid colours + separate *-opacity (rgba() is invalid in standalone-SVG presentation attributes)
+    none:(g,x,y,w,h,href)=>{ g.appendChild(_im(href,x,y,w,h)); g.appendChild(_rc(x,y,w,h,{fill:"none",stroke:"#000","stroke-opacity":".28","stroke-width":Math.max(2,w*0.006)})); },
+    classic:(g,x,y,w,h,href)=>{ const b=Math.max(9,w*0.035); g.appendChild(_rc(x-b,y-b,w+2*b,h+2*b,{fill:"#fff",stroke:"#000","stroke-opacity":".18","stroke-width":1})); g.appendChild(_im(href,x,y,w,h)); g.appendChild(_rc(x,y,w,h,{fill:"none",stroke:"#000","stroke-opacity":".2","stroke-width":1.5})); },
+    polaroid:(g,x,y,w,h,href)=>{ const p=Math.max(10,w*0.05), bot=Math.max(34,w*0.2); g.appendChild(_rc(x-p,y-p,w+2*p,h+p+bot,{fill:"#fffdf5",stroke:"#000","stroke-opacity":".14","stroke-width":1,rx:"3"})); g.appendChild(_im(href,x,y,w,h)); },
+    tape:(g,x,y,w,h,href)=>{ g.appendChild(_im(href,x,y,w,h)); g.appendChild(_rc(x,y,w,h,{fill:"none",stroke:"#fff","stroke-opacity":".85","stroke-width":Math.max(4,w*0.02)}));
+      const tw=Math.max(30,w*0.16), th=Math.max(12,w*0.05), tape=(tx,ty,rot)=>{ const t=_rc(tx-tw/2,ty-th/2,tw,th,{fill:"#f0e084","fill-opacity":".72",stroke:"#000","stroke-opacity":".06","stroke-width":1}); t.setAttribute("transform",`rotate(${rot} ${tx.toFixed(1)} ${ty.toFixed(1)})`); g.appendChild(t); };
       tape(x,y,-45); tape(x+w,y,45); tape(x,y+h,-135); tape(x+w,y+h,135); },
     dots:(g,x,y,w,h,href)=>{ const b=Math.max(7,w*0.028); g.appendChild(_rc(x-b,y-b,w+2*b,h+2*b,{fill:"#fff"})); g.appendChild(_im(href,x,y,w,h));
-      g.appendChild(_rc(x-b/2,y-b/2,w+b,h+b,{fill:"none",stroke:color,"stroke-width":(b*0.7).toFixed(1),"stroke-linecap":"round","stroke-dasharray":`0.1 ${(b*1.9).toFixed(1)}`})); },
+      g.appendChild(_rc(x-b/2,y-b/2,w+b,h+b,{fill:"none",stroke:color,"stroke-opacity":".9","stroke-width":(b*0.7).toFixed(1),"stroke-linecap":"round","stroke-dasharray":`0.1 ${(b*1.9).toFixed(1)}`})); },
   };
   const buildPhoto=(href,cx,cy,w,h,style)=>{ const g=document.createElementNS(SVGNS,"g"); g.setAttribute("data-photo","1"); const x=cx-w/2, y=cy-h/2;
     (FRAMES[style]||FRAMES.polaroid)(g,x,y,w,h,href);
