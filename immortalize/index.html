@@ -168,7 +168,7 @@
       <div class="cardprev"><img id="mintPrev" alt="your card"></div>
       <h2 id="mintTitle" style="margin:12px 0 2px">Your card</h2>
       <p class="dim" id="mintMeta" style="margin-bottom:10px"></p>
-      <div class="note lock">♾️ <span>This writes your card onto the chain, <b>owned by you forever</b>. nft.gift takes <b>nothing</b> — you pay only the miners, a fraction of a cent.</span></div>
+      <div class="note lock">♾️ <span>This writes your card onto the chain — <b>encrypted &amp; private</b>, <b>owned by you forever</b>. nft.gift takes <b>nothing</b>; you pay only the miners, a fraction of a cent.</span></div>
       <p class="dim" id="mintBal" style="margin:4px 0"></p>
       <div class="err" id="mintErr"></div>
       <button class="btn primary" id="btnMint" disabled>✨ Make it immortal</button>
@@ -188,7 +188,7 @@
     <section class="screen" id="scMinted"><div class="box center">
       <div class="hero-emoji">♾️</div>
       <h1 style="font-size:clamp(28px,7vw,38px)">It's immortal 🎉</h1>
-      <p class="dim">Your card is on-chain, owned by your wallet — forever. No one can take it, gate it, or charge rent on it.</p>
+      <p class="dim">Your card is on-chain and <b>private</b> — encrypted, owned by your wallet, forever. No one can read it, take it, gate it, or charge rent on it.</p>
       <div class="addr" id="mintedTx" style="text-align:center"></div>
       <a class="btn" id="mintedLink" target="_blank" rel="noopener">🔎 View on WhatsOnChain</a>
       <a class="btn primary" href="../make/" style="margin-top:11px">🖍️ Make another card</a>
@@ -320,7 +320,8 @@
       show("scMinting"); $("mintStatus").textContent = "Preparing your card…";
       try {
         const svg = [...new TextEncoder().encode(mintCard.svg)];
-        const res = await C.immortalize({ title: mintCard.title, svg, encrypt: false,
+        const res = await C.immortalize({ title: mintCard.title, svg, encrypt: true,   // a card is private — no marketplace, no public cover; the whole SVG is encrypted
+
           confirmSpend: (total) => { $("mintStatus").textContent = "Writing to the chain — " + total.toLocaleString() + " sats to miners…"; return true; } });
         localStorage.removeItem(PEND);
         const txid = res.tx2Id || (res.editions && res.editions[0] && res.editions[0].txId) || res.collectionId;

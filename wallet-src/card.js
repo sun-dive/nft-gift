@@ -21,9 +21,10 @@ const cardTerms = key => ({ publisherPubKeyHash: own160(key), publisherFeeSats: 
 const need = () => { const k = activeKey(); if (!k) throw new Error('Unlock your wallet first.'); return k }
 
 const api = {
-  /** Immortalize: mint the card as a replicable V1 edition owned by your wallet. The full card is the
-   *  (optionally encrypted) file; the front is the public cover; nothing but the miner is paid. */
-  async immortalize({ title, svg, cover, backCover, license, encrypt = true, confirmSpend } = {}) {
+  /** Immortalize: mint the card as a replicable V1 edition owned by your wallet. A card is PRIVATE — there is
+   *  no marketplace and no public cover; the whole front/inside/back SVG is the encrypted file. Only the miner
+   *  is paid. `encrypt` stays a param (defaults on) so a deliberately-public card is still possible one day. */
+  async immortalize({ title, svg, license, encrypt = true, confirmSpend } = {}) {
     const key = need()
     return createEdition(provider(), key, {
       tokenName: title || 'A card',
@@ -31,8 +32,6 @@ const api = {
       mintCount: 1,
       file: svg ? { mimeType: 'image/svg+xml', fileName: 'card.svg', bytes: svg } : undefined,
       encrypt: !!(svg && encrypt),
-      cover: cover ? { mimeType: 'image/png', fileName: 'front.png', bytes: cover } : undefined,
-      backCover: backCover ? { mimeType: 'image/png', fileName: 'back.png', bytes: backCover } : undefined,
       license,
       feePerKb: FEE_KB,
       confirmSpend,
