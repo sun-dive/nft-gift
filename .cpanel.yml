@@ -1,13 +1,15 @@
 ---
 # cPanel Git™ Version Control deployment for nft.gift — the card maker.
 #
-# In cPanel → Git Version Control: clone this repo (branch main), then "Update from Remote" +
-# "Deploy HEAD Commit". cPanel copies the self-contained card maker into nft.gift's web root.
+# In cPanel → Git Version Control: "Update from Remote" then "Deploy HEAD Commit".
+# cPanel copies the static site into nft.gift's web root.
 #
-# DEPLOYPATH = the nft.gift document root, relative to $HOME (set at deploy time, so the username
-# never lands in the repo). An addon domain's Document Root usually shows as "/nft.gift" →
-# $HOME/nft.gift. Confirm in cPanel → Domains and adjust the path below if it differs.
+# DEPLOYPATH = the nft.gift document root, relative to $HOME (set at deploy time so the
+# username never lands in the repo). An addon domain's Document Root usually shows as
+# "/nft.gift" → $HOME/nft.gift. Confirm in cPanel → Domains and adjust if it differs.
 deployment:
   tasks:
     - export DEPLOYPATH="$HOME/nft.gift/"
-    - /bin/cp index.html "$DEPLOYPATH"
+    - /bin/cp index.html "$DEPLOYPATH"            # landing
+    - /bin/cp -R make "$DEPLOYPATH"               # the card editor  → nft.gift/make/
+    - /bin/cp -R help "$DEPLOYPATH"               # help document    → nft.gift/help/
