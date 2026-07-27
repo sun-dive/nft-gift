@@ -25,10 +25,10 @@
   .stat{font:12px/1.4 ui-monospace,Menlo,monospace;color:var(--dim);margin-left:auto}
   .stat b{color:var(--ink)} .stat .seal{color:var(--accent2)} .stat .price b{color:var(--accent2)}
   .card-hide{display:none!important}  /* tools trimmed from the card maker (kept in the Draw tool for the multiverse) */
-  #textInput{position:fixed;display:none;z-index:60;transform:translate(-50%,-50%);min-width:120px;max-width:82vw;
+  #textInput{position:fixed;display:none;z-index:60;transform:translate(-50%,-50%);width:min(320px,80vw);max-width:80vw;
     padding:6px 12px;border:2px solid var(--accent);border-radius:9px;background:var(--panel);color:var(--ink);
     font:600 22px var(--font);text-align:center;outline:none;box-shadow:0 8px 26px rgba(0,0,0,.35);
-    resize:none;line-height:1.3;white-space:pre;overflow:hidden}
+    resize:none;line-height:1.3;white-space:pre-wrap;overflow-wrap:break-word;overflow:hidden}
   .overlay{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:18px}
   .overlay[hidden]{display:none}
   .sharebox{position:relative;background:var(--panel);color:var(--ink);border:2px solid var(--line);border-radius:20px;padding:26px 24px;max-width:400px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
@@ -181,7 +181,7 @@
     </div>
     <div class="sep"></div>
     <div class="group" data-sheet="text"><span class="lbl">Text</span>
-      <button class="tool" data-tool="text" title="Text — tap the card, then type. ⏎ starts a new line; tap away (or ⌘/Ctrl+⏎) to place it">🅣</button>
+      <button class="tool" data-tool="text" title="Text — tap the card, then type. Long lines wrap to fit; ⏎ forces a new line. Tap the card (or ⌘/Ctrl+⏎) to place it">🅣</button>
       <select id="fontFace" title="Font">
         <option value="round">Aa · Rounded</option>
         <option value="fun">Aa · Fun</option>
@@ -301,7 +301,7 @@
     <button class="mb" data-sheet="save"><b>⬇</b>Save</button>
   </nav>
   <div id="sheetBackdrop"></div>
-  <textarea id="textInput" rows="1" wrap="off" placeholder="Type your message… ⏎ = new line" spellcheck="false" autocomplete="off" autocapitalize="sentences"></textarea>
+  <textarea id="textInput" rows="1" placeholder="Type your message…" spellcheck="false" autocomplete="off" autocapitalize="sentences"></textarea>
   <input id="photoFile" type="file" accept="image/*" style="display:none">
   <div id="shareOverlay" class="overlay" hidden>
     <div class="sharebox">
@@ -551,15 +551,25 @@
   const startText=(e,p)=>{ textPt=p; const ti=$("textInput"); ti.value=""; ti.style.display="block"; ti.style.height="auto";
     ti.style.left=e.clientX+"px"; ti.style.top=e.clientY+"px"; ti.style.color=color; ti.style.fontFamily=fontStack();
     setTimeout(()=>{ ti.focus(); growText(); },0); };
-  const placeText=()=>{ const ti=$("textInput"), val=ti.value.replace(/\s+$/,"").replace(/^\n+/,""); ti.style.display="none";
-    if(!val.trim()||!textPt){ textPt=null; return; }
-    const lines=val.split("\n"), fs=Math.max(24,Math.round(width*8)), t=document.createElementNS(SVGNS,"text");
-    t.setAttribute("x",textPt.x.toFixed(1)); t.setAttribute("y",(textPt.y-(lines.length-1)*fs*0.64).toFixed(1)); t.setAttribute("fill",color);
-    t.setAttribute("font-family",fontStack()); t.setAttribute("font-size",fs); t.setAttribute("text-anchor","middle"); t.setAttribute("dominant-baseline","middle");
+  const placeText=()=>{ const ti=$("textInput"), raw=ti.value.replace(/\s+$/,"").replace(/^\n+/,""); ti.style.display="none";
+    if(!raw.trim()||!textPt){ textPt=null; return; }
+    const fs=Math.max(24,Math.round(width*8)), t=document.createElementNS(SVGNS,"text");
+    t.setAttribute("fill",color); t.setAttribute("font-family",fontStack()); t.setAttribute("font-size",fs);
+    t.setAttribute("text-anchor","middle"); t.setAttribute("dominant-baseline","middle");
+    active.appendChild(t);                                   // in the tree so we can measure real glyph widths (embedded fonts)
+    // wrap width: keep the centred text on-card — bounded by the card and by the tap point's distance to the nearer edge
+    const maxW=Math.max(180, Math.min(CW*0.84, 2*Math.min(textPt.x,CW-textPt.x)-24));
+    const meas=document.createElementNS(SVGNS,"tspan"); t.appendChild(meas);
+    const widthOf=s=>{ meas.textContent=s||" "; try{ return meas.getComputedTextLength(); }catch(_){ return (s||"").length*fs*0.55; } };
+    const wrapLine=line=>{ if(!line) return [""]; const words=line.split(/ +/); let cur="", out=[];
+      for(const w of words){ const test=cur?cur+" "+w:w; if(cur && widthOf(test)>maxW){ out.push(cur); cur=w; } else cur=test; }
+      out.push(cur); return out; };
+    const lines=[]; raw.split("\n").forEach(l=>wrapLine(l).forEach(w=>lines.push(w))); t.removeChild(meas);
+    t.setAttribute("x",textPt.x.toFixed(1)); t.setAttribute("y",(textPt.y-(lines.length-1)*fs*0.64).toFixed(1));
     lines.forEach((ln,i)=>{ const ts=document.createElementNS(SVGNS,"tspan"); ts.setAttribute("x",textPt.x.toFixed(1)); ts.setAttribute("dy",i===0?"0":(fs*1.28).toFixed(0)); ts.textContent=ln; t.appendChild(ts); });
-    if(wiggle) t.setAttribute("filter","url(#sprayBoil)"); active.appendChild(t);
+    if(wiggle) t.setAttribute("filter","url(#sprayBoil)");
     if(twinkle) applyTwinkle(t);
-    setRec(t,{k:"text",txt:val,col:color,fs,font:fontKey(),x:+textPt.x.toFixed(1),y:+textPt.y.toFixed(1),wig:wiggle?1:0,twk:twinkle?1:0});
+    setRec(t,{k:"text",txt:raw,col:color,fs,font:fontKey(),x:+textPt.x.toFixed(1),y:+textPt.y.toFixed(1),wig:wiggle?1:0,twk:twinkle?1:0});
     undone=[]; textPt=null; save(); refresh(); };
   $("textInput").oninput=growText;
   $("textInput").onkeydown=e=>{ if(e.key==="Enter"&&(e.metaKey||e.ctrlKey)){ e.preventDefault(); placeText(); } else if(e.key==="Escape"){ e.preventDefault(); $("textInput").style.display="none"; textPt=null; } };
@@ -604,6 +614,7 @@
     else clearSel(); };
 
   const start=e=>{ e.preventDefault();
+    if($("textInput").style.display==="block"){ placeText(); return; }   // a tap on the canvas while typing PLACES the message (then this tap is done)
     if(tool==="pan"){ panning=true; const r=svg.getBoundingClientRect(); ps={x:e.clientX,y:e.clientY,px:panX,py:panY,scale:(CW/zoom)/r.width}; svg.setPointerCapture(e.pointerId); return; }
     const p=toSvg(e);
     if(tool==="move"){ startMove(e,p); return; }
