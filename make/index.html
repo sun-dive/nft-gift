@@ -21,6 +21,7 @@
   .sep{width:1px;align-self:stretch;background:var(--line);margin:2px}
   .stat{font:12px/1.4 ui-monospace,Menlo,monospace;color:var(--dim);margin-left:auto}
   .stat b{color:var(--ink)} .stat .seal{color:var(--accent2)} .stat .price b{color:var(--accent2)}
+  .card-hide{display:none!important}  /* tools trimmed from the card maker (kept in the Draw tool for the multiverse) */
   button.tool,select,button.act{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:var(--radius);padding:7px 9px;font-size:14px;cursor:pointer;line-height:1}
   button.tool{min-width:36px}
   button.tool.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 22%,var(--panel2));color:#fff}
@@ -94,11 +95,11 @@
       <button class="tool"    data-tool="shade"       title="Shading — soft, builds up">🖌️</button>
       <button class="tool"    data-tool="highlighter" title="Highlighter — wide, see-through">🟨</button>
       <button class="tool"    data-tool="spray"       title="Spray paint — speckled airbrush">💨</button>
-      <button class="tool"    data-tool="fractal"     title="Fractal brush — draw a stroke, a plant grows! (drag to aim & size)">🌿</button>
+      <button class="tool card-hide" data-tool="fractal" title="Fractal brush">🌿</button>
       <button class="tool"    data-tool="eraser"      title="Eraser — paints the background back">🧽</button>
     </div>
-    <div class="sep"></div>
-    <div class="group"><span class="lbl">Plant</span>
+    <div class="sep card-hide"></div>
+    <div class="group card-hide"><span class="lbl">Plant</span>
       <select id="fracKind" title="Fractal species (for the 🌿 brush)">
         <option value="Fern">🌿 Fern</option><option value="Tree">🌳 Tree</option><option value="Vine">🌀 Vine</option>
         <option value="Coral">🪸 Coral</option><option value="Lightning">⚡ Bolt</option><option value="Bush">🌾 Bush</option>
@@ -134,8 +135,8 @@
         <input type="range" id="tSpd" min="1" max="10" value="5">
       </div>
     </div>
-    <div class="sep"></div>
-    <div class="group"><span class="lbl">View</span>
+    <div class="sep card-hide"></div>
+    <div class="group card-hide"><span class="lbl">View</span>
       <button class="tool" data-tool="pan" title="Pan — drag to move the canvas">✋</button>
       <button class="tool" id="zOut" title="Zoom out">🔍−</button>
       <button class="tool" id="zFit" title="Reset zoom (fit)" style="min-width:auto;padding:7px 8px;font:12px ui-monospace,Menlo,monospace"><span id="zlabel">100%</span></button>
@@ -154,7 +155,7 @@
       <button class="tool" id="undo" title="Undo last stroke">↶</button>
       <button class="tool" id="redo" title="Redo">↷</button>
     </div>
-    <div class="stat">
+    <div class="stat card-hide">
       <span>marks <b><span id="stN">0</span>/<span id="stCap">50</span></b><span id="stSeal" class="seal"></span></span> ·
       <span class="price">buy §<b id="stPrice">0</b></span>
     </div>
