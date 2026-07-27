@@ -13,7 +13,7 @@ import { activeKey, activeAddress } from './wallet.js'
 import { WalletProvider } from '../../PharLap/src/walletProvider.ts'
 import { createEdition, createGiftVouchers, buildEditionGenesisTx, toFundingInputs } from '../../PharLap/src/editionBuilder.ts'
 
-const FEE_KB = 100                                   // official 100 sats/KB — never inflated (fee-rate policy)
+const FEE_KB = 101                                   // matches PharLap: a 1-sat margin so txs land AT/ABOVE the official 100 sats/KB floor (not rounding a hair under → rejected). Not inflation.
 const provider = () => new WalletProvider(activeAddress())
 const own160 = key => Hash.hash160(key.toPublicKey().encode(true))
 // V1 terms, everything at the 1-sat floor: the "publisher fee" is paid to YOURSELF, so it's free bar the miner.
