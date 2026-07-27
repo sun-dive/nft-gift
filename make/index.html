@@ -53,20 +53,42 @@
   .ledger{display:flex;align-items:center;gap:6px;flex:1;min-width:140px;overflow:auto;font:12px ui-monospace,Menlo,monospace}
   .chip{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:99px;background:var(--panel2);border:1px solid var(--line);color:var(--dim);white-space:nowrap}
   .chip i{width:9px;height:9px;border-radius:50%} .spacer{flex:1}
-  /* ── Mobile: swipeable single-row toolbars + fit-to-screen canvas (phones are the primary card surface) ── */
+  /* ── Mobile: bottom tool bar + slide-up sheets (phones are the primary card surface) ── */
+  .mobar{display:none}
   @media (max-width:720px){
     .appnav{padding:7px 12px}
-    .toolbar{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:5px;padding:7px 10px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-    .toolbar::-webkit-scrollbar{display:none}
-    .toolbar .lbl,.toolbar .sep,.toolbar .stat{display:none}   /* hide labels/separators/wall-stat to save width */
-    .group{gap:5px;flex:0 0 auto}
-    button.tool{min-width:42px;padding:9px 8px;font-size:16px} /* bigger touch targets */
-    #hex{width:76px}
-    .stage{padding:8px}
-    footer{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;gap:7px;padding:8px 10px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-    footer::-webkit-scrollbar{display:none}
+    .stage{padding:8px 8px 74px}                                 /* clear the fixed bottom bar */
+    button.tool{min-width:46px;min-height:44px;font-size:18px}   /* thumb-sized */
+    #hex{width:84px}
+    /* the top toolbar + footer become slide-up SHEETS docked just above the bar */
+    .toolbar,footer{position:fixed;left:0;right:0;bottom:64px;z-index:40;flex-wrap:wrap;align-items:flex-start;gap:10px;
+      padding:14px 14px 18px;border:none;border-top:2px solid var(--line);border-radius:18px 18px 0 0;background:var(--panel);
+      box-shadow:0 -10px 30px rgba(0,0,0,.28);max-height:54vh;overflow:auto;
+      transform:translateY(115%);transition:transform .22s cubic-bezier(.2,.9,.3,1);visibility:hidden}
+    body[data-sheet="save"] footer{transform:none;visibility:visible}
+    body[data-sheet="brush"] .toolbar,body[data-sheet="stamp"] .toolbar,
+    body[data-sheet="fx"] .toolbar,body[data-sheet="colour"] .toolbar{transform:none;visibility:visible}
+    .toolbar .sep,.toolbar .stat{display:none}
+    .toolbar .group{display:none;width:100%}
+    .toolbar .group .lbl{display:block;width:100%;margin-bottom:2px;font-size:12px}
+    body[data-sheet="brush"]  .group[data-sheet="brush"],
+    body[data-sheet="stamp"]  .group[data-sheet="stamp"],
+    body[data-sheet="fx"]     .group[data-sheet="fx"],
+    body[data-sheet="colour"] .group[data-sheet="colour"]{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
     footer .ledger,footer .spacer{display:none}
-    footer button.act,footer select{flex:0 0 auto;white-space:nowrap}
+    footer button.act,footer select{flex:0 0 auto}
+    /* tap-away backdrop (closes the open sheet) */
+    #sheetBackdrop{display:none}
+    body[data-sheet="brush"] #sheetBackdrop,body[data-sheet="stamp"] #sheetBackdrop,body[data-sheet="fx"] #sheetBackdrop,
+    body[data-sheet="colour"] #sheetBackdrop,body[data-sheet="save"] #sheetBackdrop{display:block;position:fixed;inset:0 0 64px 0;z-index:35;background:transparent}
+    /* the bottom bar */
+    .mobar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:50;height:64px;background:var(--panel);
+      border-top:2px solid var(--line);box-shadow:0 -6px 18px rgba(0,0,0,.2)}
+    .mobar .mb{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+      background:none;border:none;color:var(--dim);font:800 11px var(--font);cursor:pointer;padding:0}
+    .mobar .mb b{font-size:23px;font-weight:400;line-height:1}
+    .mobar .mb.mini{flex:.62}
+    .mobar .mb.on{color:var(--accent)}
   }
   /* ── App SKINS (the whole-tool vibe; separate from the canvas art themes) ── */
   body[data-skin="crayon"]{--bg:#efe4cd;--panel:#fff7e6;--panel2:#fffdf8;--line:#e0d2b2;--ink:#2b2118;--dim:#8a7a5f;--accent:#ff5a5f;--accent2:#f0a316;--font:"Trebuchet MS","Segoe UI",system-ui,sans-serif;--radius:13px;background-image:radial-gradient(#e2d5b8 .9px,transparent .9px);background-size:20px 20px}
@@ -89,7 +111,7 @@
   </nav>
 
   <div class="toolbar">
-    <div class="group"><span class="lbl">Brush</span>
+    <div class="group" data-sheet="brush"><span class="lbl">Brush</span>
       <button class="tool on" data-tool="pen"         title="Pen — smooth solid ink">✒️</button>
       <button class="tool"    data-tool="pencil"      title="Pencil — thin & crisp">✏️</button>
       <button class="tool"    data-tool="shade"       title="Shading — soft, builds up">🖌️</button>
@@ -110,18 +132,18 @@
       </select>
     </div>
     <div class="sep"></div>
-    <div class="group"><span class="lbl">Stamp</span>
+    <div class="group" data-sheet="stamp"><span class="lbl">Stamp</span>
       <button class="tool" data-tool="stamp" title="Stamp — click to place a shape">⭐</button>
       <select id="stampShape" title="Stamp shape"><option>★</option><option>●</option><option>♥</option><option>✦</option></select>
     </div>
     <div class="sep"></div>
-    <div class="group"><span class="lbl">Shape</span>
+    <div class="group" data-sheet="stamp"><span class="lbl">Shape</span>
       <button class="tool" data-tool="line" title="Line">╱</button>
       <button class="tool" data-tool="rect" title="Rectangle">▭</button>
       <button class="tool" data-tool="ellipse" title="Ellipse">◯</button>
     </div>
     <div class="sep"></div>
-    <div class="group" style="position:relative">
+    <div class="group" style="position:relative" data-sheet="fx">
       <button class="tool" id="wiggle" title="Wiggle — make strokes & stamps come alive" style="min-width:auto;padding:7px 9px">🌀</button>
       <button class="tool" id="twinkle" title="Twinkle — opacity shimmer, out-of-sync per mark (stacks with wiggle)" style="min-width:auto;padding:7px 9px">✨</button>
       <button class="tool" id="twiggle" title="Wiggle settings (twiggle)" style="min-width:auto;padding:7px 8px">⚙</button>
@@ -143,13 +165,13 @@
       <button class="tool" id="zIn" title="Zoom in">🔍+</button>
     </div>
     <div class="sep"></div>
-    <div class="group" id="widths"><span class="lbl">Size</span></div>
+    <div class="group" id="widths" data-sheet="brush"><span class="lbl">Size</span></div>
     <div class="sep"></div>
-    <div class="group"><span class="lbl">Colour</span>
+    <div class="group" data-sheet="colour"><span class="lbl">Colour</span>
       <input type="color" id="nativeColor" value="#8b7cf6" title="Pick any colour — hue, saturation, brightness">
       <input id="hex" type="text" spellcheck="false" maxlength="7" aria-label="Hex colour" title="Type a hex colour">
     </div>
-    <div class="group" id="palette"></div>
+    <div class="group" id="palette" data-sheet="colour"></div>
     <div class="sep"></div>
     <div class="group">
       <button class="tool" id="undo" title="Undo last stroke">↶</button>
@@ -204,6 +226,18 @@
     </select>
     <button class="act pay" id="pngExport" title="Export a PNG at the chosen resolution — cover or HQ deliverable">⬇ PNG</button>
   </footer>
+
+  <!-- mobile-only bottom tool bar → opens slide-up sheets (the tool groups above) -->
+  <nav class="mobar" aria-label="Card tools">
+    <button class="mb" data-sheet="brush"><b>🖌️</b>Draw</button>
+    <button class="mb" data-sheet="stamp"><b>⭐</b>Stamp</button>
+    <button class="mb" data-sheet="fx"><b>✨</b>Fun</button>
+    <button class="mb" data-sheet="colour"><b>🎨</b>Colour</button>
+    <button class="mb mini" id="mbUndo" title="Undo"><b>↶</b></button>
+    <button class="mb mini" id="mbRedo" title="Redo"><b>↷</b></button>
+    <button class="mb" data-sheet="save"><b>⬇</b>Save</button>
+  </nav>
+  <div id="sheetBackdrop"></div>
 
 <script>
 (() => {
@@ -454,6 +488,15 @@
     document.querySelectorAll("button.tool[data-tool]").forEach(x=>x.classList.remove("on")); b.classList.add("on"); }; });
   $("wiggle").onclick=()=>{ wiggle=!wiggle; $("wiggle").classList.toggle("on",wiggle); };
   $("twinkle").onclick=()=>{ twinkle=!twinkle; $("twinkle").classList.toggle("on",twinkle); };
+
+  // ── Mobile bottom bar → open/close the tool sheets (tap a bar item to slide its sheet up; tap again or tap away to close) ──
+  const mbBtns=[...document.querySelectorAll(".mobar .mb[data-sheet]")];
+  const setSheet=n=>{ const b=document.body; b.dataset.sheet=(b.dataset.sheet===n)?"":n;
+    mbBtns.forEach(x=>x.classList.toggle("on", !!b.dataset.sheet && x.dataset.sheet===b.dataset.sheet)); };
+  mbBtns.forEach(x=> x.onclick=()=>setSheet(x.dataset.sheet));
+  $("mbUndo").onclick=()=>{ const u=$("undo"); if(u&&u.onclick) u.onclick(); };
+  $("mbRedo").onclick=()=>{ const r=$("redo"); if(r&&r.onclick) r.onclick(); };
+  $("sheetBackdrop").onclick=()=>setSheet("");
   $("fracKind").onchange=()=>{ fkind=$("fracKind").value; }; $("fracGrow").onchange=()=>{ fgrow=$("fracGrow").value; };
 
   // ── Colour ──
