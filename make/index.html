@@ -282,6 +282,7 @@
     <button class="act" id="viewsvg">&lt;/&gt; SVG</button>
     <button class="act pay" id="shareBtn" data-i18n="foot.share" data-i18n-title="tip.shareBtn" title="Get a shareable link to your card">🔗 Share card</button>
     <button class="act" id="exportSvg" data-i18n="foot.save" data-i18n-title="tip.saveCard" title="Download your whole card as a file (all three pages, animated)">⬇ Save card</button>
+    <button class="act pay" id="immortalizeBtn" data-i18n="foot.immortalize" data-i18n-title="tip.immortalize" title="Make this card immortal — mint it on-chain, owned by you forever">✨ Immortalize</button>
     <select id="pngRes" class="card-hide" title="PNG output resolution">
       <option value="800">800² · cover</option>
       <option value="1000">1000²</option>
@@ -343,7 +344,8 @@
     "opt.font.round":"Aa · 圓體","opt.font.fun":"Aa · 趣味","opt.font.hand":"Aa · 手寫","opt.font.serif":"Aa · 經典","opt.font.bold":"Aa · 粗體","opt.font.type":"Aa · 打字機",
     "opt.border.none":"▫️ 無邊框","opt.border.line":"▭ 直線","opt.border.rounded":"▢ 圓角","opt.border.double":"▤ 雙線","opt.border.dashed":"┈ 虛線","opt.border.dots":"⋯ 圓點",
     "hint.main":"作畫後自動儲存 · 捲動或 🔍 縮放 · ✋ 平移",
-    "foot.templates":"🎨 範本","foot.clear":"🧹 清除此頁","foot.new":"🗑 新卡片","foot.share":"🔗 分享卡片","foot.save":"⬇ 儲存卡片",
+    "foot.templates":"🎨 範本","foot.clear":"🧹 清除此頁","foot.new":"🗑 新卡片","foot.share":"🔗 分享卡片","foot.save":"⬇ 儲存卡片","foot.immortalize":"✨ 永久保存",
+    "tip.immortalize":"讓這張卡片永恆 — 上鏈鑄造，永遠屬於你",
     "opt.skin.crayon":"風格：蠟筆","opt.skin.sketch":"風格：素描本","opt.skin.toy":"風格：玩具箱","opt.skin.studio":"風格：工作室",
     "share.title":"你的卡片可以寄出了！","share.desc":"任何有這個連結的人都能打開你的卡片 🎁","share.copy":"📋 複製","share.preview":"👀 預覽","share.send":"📤 寄出",
     "tmpl.title":"🎨 從範本開始","tmpl.desc":"選一個節日 — 再讓它成為你的。",
@@ -881,6 +883,13 @@
   const showShare=link=>{ $("shareLink").value=link; $("shareOpen").href=link; $("shareOverlay").hidden=false;
     $("shareCopy").onclick=()=>{ $("shareLink").select(); try{ navigator.clipboard.writeText(link); }catch(_){ try{document.execCommand("copy");}catch(e){} } $("shareCopy").textContent="✓ Copied!"; setTimeout(()=>$("shareCopy").textContent="📋 Copy",1600); };
     $("shareSend").onclick=()=>{ if(navigator.share) navigator.share({title:"A card for you 🎁",url:link}).catch(()=>{}); else $("shareCopy").click(); }; };
+  // ✨ Immortalize = hand the card off to the wallet page, which mints it on-chain (owned by you)
+  const frontTitle=()=>{ const g=document.createElementNS(SVGNS,"g"); g.innerHTML=panels.front||active.innerHTML||"";
+    const t=g.querySelector("text"); const s=((t&&t.textContent)||"").trim().replace(/\s+/g," "); return s ? s.slice(0,60) : "A nft.gift card"; };
+  $("immortalizeBtn").onclick=()=>{ const doc=buildCardDoc();
+    try{ localStorage.setItem("nftGift.pendingCard", JSON.stringify({ title:frontTitle(), svg:doc, ts:Date.now() })); }
+    catch(_){ alert("This card is a little too big to immortalize on this device. Try trimming a photo and retry."); return; }
+    location.href="../immortalize/"; };
   $("shareClose").onclick=()=>{ $("shareOverlay").hidden=true; };
   $("shareOverlay").onclick=e=>{ if(e.target===$("shareOverlay")) $("shareOverlay").hidden=true; };
 
