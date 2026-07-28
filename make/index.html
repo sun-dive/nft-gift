@@ -270,6 +270,7 @@
 
   <footer>
     <button class="act" id="tmplBtn" data-i18n="foot.templates" data-i18n-title="tip.tmplBtn" title="Start from an occasion template">🎨 Templates</button>
+    <button class="act" id="voiceBtn" data-i18n="foot.voice" data-i18n-title="tip.voice" title="Record a short voice message for the card">🎤 Voice</button>
     <button class="act primary card-hide" id="commit">＋ Add mark</button>
     <button class="act" id="clearSess" data-i18n="foot.clear">🧹 Clear page</button>
     <button class="act" id="newCanvas" data-i18n="foot.new" data-i18n-title="tip.newCard" title="Start a fresh card (clears all three pages)">🗑 New card</button>
@@ -320,6 +321,22 @@
       <div class="tgrid" id="tmplGrid"></div>
     </div>
   </div>
+  <div id="voiceOverlay" class="overlay" hidden>
+    <div class="sharebox">
+      <button class="sh-x" id="voiceClose" data-i18n-title="tip.shareClose" title="Close">✕</button>
+      <div class="sh-emoji">🎤</div>
+      <h3 data-i18n="voice.title">Record a voice message</h3>
+      <p id="voiceMsg" data-i18n="voice.hint">Up to 10 seconds — say hello. 💛</p>
+      <div id="voiceTimer" style="font:800 30px ui-monospace,Menlo,monospace;color:var(--accent);margin:6px 0">0.0s</div>
+      <audio id="voicePreview" controls hidden style="width:100%;margin:6px 0"></audio>
+      <div class="sh-actions">
+        <button id="voiceRec" class="sh-btn primary">● <span data-i18n="voice.rec">Record</span></button>
+        <button id="voiceAdd" class="sh-btn primary" hidden>✓ <span data-i18n="voice.add">Add to card</span></button>
+        <button id="voiceRe" class="sh-btn" hidden>↺ <span data-i18n="voice.re">Re-record</span></button>
+      </div>
+      <p id="voiceHas" hidden style="margin-top:12px;color:var(--accent2);font-weight:700">🔊 <span data-i18n="voice.has">A voice message is attached.</span> <a href="#" id="voiceRemove" style="color:var(--accent)" data-i18n="voice.remove">remove</a></p>
+    </div>
+  </div>
 
 <script>
 (() => {
@@ -339,8 +356,9 @@
     "opt.font.round":"Aa · 圓體","opt.font.fun":"Aa · 趣味","opt.font.hand":"Aa · 手寫","opt.font.serif":"Aa · 經典","opt.font.bold":"Aa · 粗體","opt.font.type":"Aa · 打字機",
     "opt.border.none":"▫️ 無邊框","opt.border.line":"▭ 直線","opt.border.rounded":"▢ 圓角","opt.border.double":"▤ 雙線","opt.border.dashed":"┈ 虛線","opt.border.dots":"⋯ 圓點",
     "hint.main":"作畫後自動儲存 · 捲動或 🔍 縮放 · ✋ 平移",
-    "foot.templates":"🎨 範本","foot.clear":"🧹 清除此頁","foot.new":"🗑 新卡片","foot.share":"🔗 分享卡片","foot.save":"⬇ 儲存卡片","foot.immortalize":"✨ 永久保存",
-    "tip.immortalize":"讓這張卡片永恆 — 上鏈鑄造，永遠屬於你",
+    "foot.templates":"🎨 範本","foot.clear":"🧹 清除此頁","foot.new":"🗑 新卡片","foot.share":"🔗 分享卡片","foot.save":"⬇ 儲存卡片","foot.immortalize":"✨ 永久保存","foot.voice":"🎤 語音",
+    "tip.immortalize":"讓這張卡片永恆 — 上鏈鑄造，永遠屬於你","tip.voice":"為卡片錄一段簡短的語音訊息",
+    "voice.title":"錄一段語音訊息","voice.hint":"最長 10 秒 — 說聲你好 💛","voice.rec":"錄音","voice.stop":"停止","voice.add":"加入卡片","voice.re":"重新錄製","voice.has":"已附上語音訊息。","voice.remove":"移除","voice.recording":"錄音中… 完成後點停止。","voice.listen":"聽聽看 — 加入卡片，或重新錄製。","voice.denied":"無法使用麥克風 — 請允許麥克風權限。","voice.nomic":"此瀏覽器不支援錄音。",
     "opt.skin.crayon":"風格：蠟筆","opt.skin.sketch":"風格：素描本","opt.skin.toy":"風格：玩具箱","opt.skin.studio":"風格：工作室",
     "share.title":"你的卡片可以寄出了！","share.desc":"任何有這個連結的人都能打開你的卡片 🎁","share.copy":"📋 複製","share.preview":"👀 預覽","share.send":"📤 寄出",
     "tmpl.title":"🎨 從範本開始","tmpl.desc":"選一個節日 — 再讓它成為你的。",
@@ -414,9 +432,9 @@
   const switchLayer=id=>{ if(LAYER_DEPTH[id]===undefined) return; if(typeof clearSel==="function") clearSel(); curLayer=id; activeLayer=layerG[id]; renderLayerTabs(); };
 
   // ── Persistence ──
-  const save=()=>{ try{ panels[panel]=active.innerHTML; localStorage.setItem(STORE, JSON.stringify({ t:themeName, bg:cardBg, p:panel, pn:panels })); }catch(_){} };
+  const save=()=>{ try{ panels[panel]=active.innerHTML; localStorage.setItem(STORE, JSON.stringify({ t:themeName, bg:cardBg, p:panel, pn:panels, au:cardAudio })); }catch(_){} };
   const load=()=>{ try{ const s=JSON.parse(localStorage.getItem(STORE)); if(!s) return;
-    if(s.t && THEMES[s.t]) themeName=s.t; cardBg=s.bg||null;
+    if(s.t && THEMES[s.t]) themeName=s.t; cardBg=s.bg||null; cardAudio=s.au||null;
     if(s.pn){ Object.assign(panels, s.pn); panel=(s.p && panels.hasOwnProperty(s.p))?s.p:"front"; }
     active.innerHTML=panels[panel]||""; committed.innerHTML=""; ensureLayers(); }catch(_){} };
   // ── Card pages: Front / Inside / Back (each its own drawing; the current one lives in #active) ──
@@ -782,7 +800,7 @@
   $("undo").onclick=()=>{ clearSel(); const els=[...activeLayer.children]; if(!els.length) return; undone.push(els[els.length-1]); activeLayer.removeChild(els[els.length-1]); save(); refresh(); };
   $("redo").onclick=()=>{ const el=undone.pop(); if(el){ activeLayer.appendChild(el); save(); refresh(); } };
   $("clearSess").onclick=()=>{ clearSel(); active.innerHTML=""; ensureLayers(); undone=[]; save(); refresh(); };
-  $("newCanvas").onclick=()=>{ if(!confirm(t("confirm.new","Start a fresh card? This clears all three pages on this device."))) return; clearSel(); panels.front=panels.inside=panels.back=""; committed.innerHTML=""; active.innerHTML=""; ensureLayers(); undone=[]; panel="front"; cardBg=null; renderPanelTabs(); save(); refresh(); };
+  $("newCanvas").onclick=()=>{ if(!confirm(t("confirm.new","Start a fresh card? This clears all three pages on this device."))) return; clearSel(); panels.front=panels.inside=panels.back=""; committed.innerHTML=""; active.innerHTML=""; ensureLayers(); undone=[]; panel="front"; cardBg=null; cardAudio=null; renderPanelTabs(); save(); refresh(); voiceUI(); };
 
   // ── Commit ──
   $("commit").onclick=()=>{ if(nContrib>=CAP || !active.children.length) return;
@@ -853,6 +871,7 @@
     root.setAttribute("viewBox",`0 0 ${CW*N} ${CH}`); root.setAttribute("width",CW*N); root.setAttribute("height",CH); // pages SIDE BY SIDE → opened card
     const defs=svg.querySelector("defs"); if(defs) root.appendChild(defs.cloneNode(true));   // carry #mcyc + #sprayBoil filters
     const meta={format:"nftsale.card.v1",ratio:"3:4",w:CW,h:CH,bg:bgColor(),panels:[]};
+    if(cardAudio&&cardAudio.src) meta.audio=cardAudio;                    // 🎤 voice message (Opus data-URI) → the opener plays it
     order.forEach((role,i)=>{
       const pg=document.createElementNS(SVGNS,"g"); pg.setAttribute("transform",`translate(${i*CW} 0)`); pg.setAttribute("data-page",role);
       const bgr=document.createElementNS(SVGNS,"rect"); bgr.setAttribute("width",CW); bgr.setAttribute("height",CH); bgr.setAttribute("fill",bgColor()); pg.appendChild(bgr);
@@ -962,8 +981,36 @@
   $("tmplClose").onclick=()=>{ $("tmplOverlay").hidden=true; };
   $("tmplOverlay").onclick=e=>{ if(e.target===$("tmplOverlay")) $("tmplOverlay").hidden=true; };
 
+  // ── 🎤 Voice message (Opus ~24 kbps, ≤10 s) — embedded in the card's private metadata; the opener plays it ──
+  let cardAudio=null;                                    // {mime, src:<dataURI>} | null
+  let mediaRec=null, recChunks=[], recStream=null, recStart=0, recRAF=0, pendingAudio=null;
+  const REC_MAX=10000;
+  const vShow=(id,on)=>{ const el=$(id); if(el) el.hidden=!on; };
+  const pickMime=()=>{ const opts=["audio/webm;codecs=opus","audio/ogg;codecs=opus","audio/webm","audio/mp4"]; for(const m of opts){ try{ if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m)) return m; }catch(_){} } return ""; };
+  const voiceUI=()=>{ vShow("voiceHas",!!cardAudio); const b=$("voiceBtn"); if(b) b.classList.toggle("on",!!cardAudio); };
+  const openVoice=()=>{ pendingAudio=null; vShow("voicePreview",false); $("voicePreview").removeAttribute("src");
+    vShow("voiceRec",true); $("voiceRec").innerHTML='● <span>'+t("voice.rec","Record")+'</span>'; vShow("voiceAdd",false); vShow("voiceRe",false);
+    $("voiceMsg").textContent=t("voice.hint","Up to 10 seconds — say hello. 💛"); $("voiceTimer").textContent="0.0s"; voiceUI(); $("voiceOverlay").hidden=false; };
+  const stopRec=()=>{ if(mediaRec&&mediaRec.state==="recording") mediaRec.stop(); if(recRAF) cancelAnimationFrame(recRAF); recRAF=0; };
+  const tick=()=>{ const s=(Date.now()-recStart)/1000; $("voiceTimer").textContent=s.toFixed(1)+"s"; if(mediaRec&&mediaRec.state==="recording"){ if(s*1000>=REC_MAX) stopRec(); else recRAF=requestAnimationFrame(tick); } };
+  const startRec=async()=>{ if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia&&window.MediaRecorder)){ $("voiceMsg").textContent=t("voice.nomic","Recording isn't supported in this browser."); return; }
+    try{ recStream=await navigator.mediaDevices.getUserMedia({audio:true}); }catch(_){ $("voiceMsg").textContent=t("voice.denied","Couldn't reach the microphone — please allow mic access."); return; }
+    recChunks=[]; const mime=pickMime();
+    try{ mediaRec=new MediaRecorder(recStream, mime?{mimeType:mime,audioBitsPerSecond:24000}:{audioBitsPerSecond:24000}); }catch(_){ mediaRec=new MediaRecorder(recStream); }
+    mediaRec.ondataavailable=e=>{ if(e.data&&e.data.size) recChunks.push(e.data); };
+    mediaRec.onstop=()=>{ try{recStream.getTracks().forEach(tr=>tr.stop());}catch(_){} const blob=new Blob(recChunks,{type:(mediaRec.mimeType||mime||"audio/webm")});
+      const rd=new FileReader(); rd.onload=()=>{ pendingAudio={mime:blob.type,src:String(rd.result)}; $("voicePreview").src=pendingAudio.src; vShow("voicePreview",true); vShow("voiceRec",false); vShow("voiceAdd",true); vShow("voiceRe",true); $("voiceMsg").textContent=t("voice.listen","Have a listen — add it, or record again."); }; rd.readAsDataURL(blob); };
+    mediaRec.start(); recStart=Date.now(); $("voiceRec").innerHTML='■ <span>'+t("voice.stop","Stop")+'</span>'; $("voiceMsg").textContent=t("voice.recording","Recording… tap Stop when you're done."); tick(); };
+  $("voiceBtn").onclick=openVoice;
+  $("voiceRec").onclick=()=>{ if(mediaRec&&mediaRec.state==="recording") stopRec(); else startRec(); };
+  $("voiceRe").onclick=()=>{ openVoice(); };
+  $("voiceAdd").onclick=()=>{ if(pendingAudio){ cardAudio=pendingAudio; save(); } $("voiceOverlay").hidden=true; voiceUI(); };
+  $("voiceRemove").onclick=e=>{ e.preventDefault(); cardAudio=null; pendingAudio=null; save(); openVoice(); };
+  $("voiceClose").onclick=()=>{ stopRec(); if(recStream){ try{recStream.getTracks().forEach(tr=>tr.stop());}catch(_){} } $("voiceOverlay").hidden=true; };
+  $("voiceOverlay").onclick=e=>{ if(e.target===$("voiceOverlay")){ stopRec(); $("voiceOverlay").hidden=true; } };
+
   { const ls=$("langSel"); if(ls){ ls.value=lang; ls.onchange=()=>setLang(ls.value); } }
-  load(); ensureLayers(); renderLayerTabs(); applyLang(); renderPanelTabs(); applyTheme(); setColor(color); applyView(); refresh();
+  load(); ensureLayers(); renderLayerTabs(); voiceUI(); applyLang(); renderPanelTabs(); applyTheme(); setColor(color); applyView(); refresh();
 })();
 </script>
 </body>

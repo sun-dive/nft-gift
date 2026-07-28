@@ -49,6 +49,10 @@
   .btn{text-decoration:none;font-weight:800;font-size:15px;padding:11px 20px;border-radius:14px;border:2.5px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
   .btn:hover{transform:translateY(-2px)}
   .btn.primary{background:var(--coral);color:#fff;border-color:color-mix(in srgb,var(--coral) 60%,#000);box-shadow:0 4px 0 color-mix(in srgb,var(--coral) 55%,#000)}
+  .btn.voice{background:var(--gold);color:#3a2a06;border-color:color-mix(in srgb,var(--gold) 60%,#000);animation:vpulse 1.8s ease-in-out infinite}
+  .btn.voice.playing{animation:none}
+  @keyframes vpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+  @media (prefers-reduced-motion:reduce){.btn.voice{animation:none}}
   footer{padding:16px;text-align:center;color:var(--dim);font-size:13px;border-top:2px dashed var(--line)}
   footer a{color:var(--dim)}
   [hidden]{display:none!important}
@@ -85,6 +89,7 @@
       </div>
       <div class="backwrap" id="backwrap"><div class="backleaf" id="pBack"></div></div>
       <div class="controls">
+        <button class="btn voice" id="voicePlay" hidden>🔊 Play the message</button>
         <button class="btn" id="flipBtn">🔄 See the back</button>
         <a class="btn primary" href="../make/">✨ Make your own →</a>
       </div>
@@ -94,6 +99,7 @@
   <footer>made with 💛 on <a href="../">nft.gift</a> · <a href="../make/">make your own</a></footer>
 
   <svg id="cardDefs" width="0" height="0" style="position:absolute" aria-hidden="true"></svg>
+  <audio id="cardAudio" preload="auto"></audio>
 <script>
 (() => {
   const SVGNS="http://www.w3.org/2000/svg", $=id=>document.getElementById(id);
@@ -121,6 +127,10 @@
     $("pFront").replaceChildren(pageSvg(pages.front,"front"));
     $("pInside").replaceChildren(pageSvg(pages.inside,"inside"));
     $("pBack").replaceChildren(pageSvg(pages.back,"back"));
+    // voice message (in the card's <metadata>) → reveal the 🔊 play button
+    let cmeta=null; try{ const mn=root.querySelector("metadata"); if(mn) cmeta=JSON.parse(mn.textContent); }catch(_){}
+    const au=cmeta&&cmeta.audio&&cmeta.audio.src, ae=$("cardAudio"), vp=$("voicePlay");
+    if(au){ ae.src=au; vp.hidden=false; vp.classList.remove("playing"); } else { vp.hidden=true; try{ae.pause();}catch(_){} ae.removeAttribute("src"); }
     // show it
     showErr(""); $("drop").hidden=true; $("viewer").hidden=false;
     $("book").classList.remove("open"); $("backwrap").classList.remove("show"); $("hint").hidden=false;
@@ -150,6 +160,9 @@
 
   // open / close the card
   $("cover").onclick=()=>{ enableTilt(); const b=$("book"); b.classList.toggle("open"); $("hint").textContent = b.classList.contains("open") ? "👆 tap to close" : "👆 tap the card to open"; };
+  // play the voice message
+  $("voicePlay").onclick=()=>{ const ae=$("cardAudio"); try{ ae.currentTime=0; ae.play().then(()=>$("voicePlay").classList.add("playing")).catch(()=>{}); }catch(_){} };
+  $("cardAudio").onended=()=>$("voicePlay").classList.remove("playing");
   // flip to the back
   $("flipBtn").onclick=()=>{ const bw=$("backwrap"), on=bw.classList.toggle("show"); $("stage").hidden=on; $("flipBtn").textContent = on ? "↩ Back to the card" : "🔄 See the back"; };
 
