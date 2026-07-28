@@ -124,7 +124,20 @@
     // show it
     showErr(""); $("drop").hidden=true; $("viewer").hidden=false;
     $("book").classList.remove("open"); $("backwrap").classList.remove("show"); $("hint").hidden=false;
+    collectLayers(); startPlx();
   }
+
+  // ── Parallax depth reveal: shift each layer by its depth (ambient sway · pointer · phone tilt) → the card opens into 3D ──
+  const reduce = matchMedia("(prefers-reduced-motion:reduce)").matches;
+  let plxLayers=[], px=0,py=0,tx=0,ty=0,tm=0,plxOn=false,tiltReady=false;
+  const collectLayers=()=>{ plxLayers=[]; document.querySelectorAll("#viewer [data-layer]").forEach(g=>{ const d=parseFloat(g.getAttribute("data-depth")); if(!isNaN(d)) plxLayers.push([g,d]); }); };
+  const plxLoop=()=>{ tm+=0.016; const ax=reduce?0:Math.sin(tm*0.7)*14, ay=reduce?0:Math.cos(tm*0.9)*8, X=px+tx+ax, Y=py+ty+ay;
+    for(const it of plxLayers) it[0].setAttribute("transform","translate("+(X*it[1]).toFixed(1)+" "+(Y*it[1]).toFixed(1)+")");
+    requestAnimationFrame(plxLoop); };
+  const startPlx=()=>{ if(plxOn) return; plxOn=true; requestAnimationFrame(plxLoop); };
+  addEventListener("pointermove",e=>{ if(reduce) return; px=(e.clientX/innerWidth-0.5)*46; py=(e.clientY/innerHeight-0.5)*40; });
+  addEventListener("deviceorientation",e=>{ if(reduce||!tiltReady) return; tx=Math.max(-1,Math.min(1,(e.gamma||0)/28))*44; ty=Math.max(-1,Math.min(1,((e.beta||0)-42)/28))*34; });
+  const enableTilt=()=>{ try{ const D=window.DeviceOrientationEvent; if(D&&D.requestPermission){ D.requestPermission().then(p=>{ tiltReady=(p==="granted"); }).catch(()=>{}); } else if(D){ tiltReady=true; } }catch(_){} };
 
   const readFile=f=>{ if(!f) return; const rd=new FileReader(); rd.onload=()=>render(String(rd.result)); rd.onerror=()=>showErr("Couldn't read that file."); rd.readAsText(f); };
 
@@ -136,7 +149,7 @@
   drop.addEventListener("drop",e=>{ const f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; readFile(f); });
 
   // open / close the card
-  $("cover").onclick=()=>{ const b=$("book"); b.classList.toggle("open"); $("hint").textContent = b.classList.contains("open") ? "👆 tap to close" : "👆 tap the card to open"; };
+  $("cover").onclick=()=>{ enableTilt(); const b=$("book"); b.classList.toggle("open"); $("hint").textContent = b.classList.contains("open") ? "👆 tap to close" : "👆 tap the card to open"; };
   // flip to the back
   $("flipBtn").onclick=()=>{ const bw=$("backwrap"), on=bw.classList.toggle("show"); $("stage").hidden=on; $("flipBtn").textContent = on ? "↩ Back to the card" : "🔄 See the back"; };
 
