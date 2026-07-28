@@ -183,6 +183,9 @@
     <div class="group" data-sheet="stamp"><span class="lbl" data-i18n="lbl.arrange">Arrange</span>
       <button class="tool" data-tool="move" data-i18n-title="tip.move" title="Move, resize &amp; recolour — tap anything you've placed, then drag to move it, drag its corner to resize, pick a colour to recolour it, or tap ✕ to remove">🤚</button>
     </div>
+    <div class="group" data-sheet="stamp"><span class="lbl" data-i18n="lbl.depth">Depth</span>
+      <span id="layerTabs" style="display:inline-flex;gap:4px" title="Which depth layer you're drawing on — the card reveals in 3D when opened"></span>
+    </div>
     <div class="sep"></div>
     <div class="group" data-sheet="text"><span class="lbl" data-i18n="lbl.text">Text</span>
       <button class="tool" data-tool="text" data-i18n-title="tip.text" title="Text — tap the card, then type. Long lines wrap to fit; ⏎ forces a new line. Tap the card (or ⌘/Ctrl+⏎) to place it">🅣</button>
@@ -330,7 +333,8 @@
   const LANGSTORE="nftGift.lang", LANGS={en:"English", zh:"繁體中文"};
   const STR={ zh:{
     "nav.help":"❔ 說明",
-    "lbl.brush":"筆刷","lbl.stamp":"印章","lbl.shape":"形狀","lbl.photo":"相片","lbl.arrange":"調整","lbl.text":"文字","lbl.border":"邊框","lbl.size":"粗細","lbl.colour":"顏色","lbl.palette":"調色盤",
+    "lbl.brush":"筆刷","lbl.stamp":"印章","lbl.shape":"形狀","lbl.photo":"相片","lbl.arrange":"調整","lbl.text":"文字","lbl.border":"邊框","lbl.size":"粗細","lbl.colour":"顏色","lbl.palette":"調色盤","lbl.depth":"深度",
+    "layer.bg":"🌫 遠","layer.mid":"◐ 中","layer.fg":"✦ 近",
     "opt.frame.polaroid":"🖼️ 拍立得","opt.frame.classic":"🖼️ 經典","opt.frame.tape":"🩹 膠帶","opt.frame.dots":"⚪ 圓點","opt.frame.plain":"▫️ 無框",
     "opt.font.round":"Aa · 圓體","opt.font.fun":"Aa · 趣味","opt.font.hand":"Aa · 手寫","opt.font.serif":"Aa · 經典","opt.font.bold":"Aa · 粗體","opt.font.type":"Aa · 打字機",
     "opt.border.none":"▫️ 無邊框","opt.border.line":"▭ 直線","opt.border.rounded":"▢ 圓角","opt.border.double":"▤ 雙線","opt.border.dashed":"┈ 虛線","opt.border.dots":"⋯ 圓點",
@@ -394,12 +398,27 @@
   let zoom=1, panX=0, panY=0, panning=false, ps=null;   // zoom / pan
   let cardBg=null; const bgColor=()=>cardBg||THEMES[themeName].bg;   // cardBg = per-card override (templates set it; theme change clears it)
 
+  // ── Depth layers (Back · Main · Front) → the opener parallaxes them for a 3D reveal. New marks land in the ACTIVE layer. ──
+  const LAYERS=[["bg","🌫 Far"],["mid","◐ Mid"],["fg","✦ Near"]];   // depth names (avoid colliding with page Front/Inside/Back); array order = paint order, back → front
+  const LAYER_DEPTH={bg:0.2,mid:0.55,fg:1};
+  let curLayer="mid", layerG={}, activeLayer=null;
+  const ensureLayers=()=>{                                          // guarantee #active holds exactly the 3 layer groups, in order; migrate any legacy flat marks into Main
+    const found={}, strays=[];
+    [...active.children].forEach(c=>{ const l=c.getAttribute&&c.getAttribute("data-layer"); if(l&&LAYER_DEPTH[l]!==undefined&&!found[l]) found[l]=c; else strays.push(c); });
+    LAYERS.forEach(([id])=>{ const g=found[id]||document.createElementNS(SVGNS,"g"); g.setAttribute("data-layer",id); active.append(g); layerG[id]=g; });
+    strays.forEach(s=>layerG.mid.append(s));                        // old single-layer cards → everything on Main
+    activeLayer=layerG[curLayer]||layerG.mid;
+  };
+  const renderLayerTabs=()=>{ const host=$("layerTabs"); if(!host) return; host.innerHTML="";
+    LAYERS.slice().reverse().forEach(([id,label])=>{ const b=document.createElement("button"); b.type="button"; b.className="tool"+(id===curLayer?" on":""); b.style.minWidth="auto"; b.style.padding="7px 9px"; b.textContent=t("layer."+id,label); b.title=t("layer."+id,label); b.onclick=()=>switchLayer(id); host.appendChild(b); }); };
+  const switchLayer=id=>{ if(LAYER_DEPTH[id]===undefined) return; if(typeof clearSel==="function") clearSel(); curLayer=id; activeLayer=layerG[id]; renderLayerTabs(); };
+
   // ── Persistence ──
   const save=()=>{ try{ panels[panel]=active.innerHTML; localStorage.setItem(STORE, JSON.stringify({ t:themeName, bg:cardBg, p:panel, pn:panels })); }catch(_){} };
   const load=()=>{ try{ const s=JSON.parse(localStorage.getItem(STORE)); if(!s) return;
     if(s.t && THEMES[s.t]) themeName=s.t; cardBg=s.bg||null;
     if(s.pn){ Object.assign(panels, s.pn); panel=(s.p && panels.hasOwnProperty(s.p))?s.p:"front"; }
-    active.innerHTML=panels[panel]||""; committed.innerHTML=""; }catch(_){} };
+    active.innerHTML=panels[panel]||""; committed.innerHTML=""; ensureLayers(); }catch(_){} };
   // ── Card pages: Front / Inside / Back (each its own drawing; the current one lives in #active) ──
   const PANELS=[["front","Front"],["inside","Inside"],["back","Back"]];
   const renderPanelTabs=()=>{ const host=$("panelTabs"); if(!host) return; host.innerHTML="";
@@ -407,7 +426,7 @@
       b.textContent=label; b.onclick=()=>switchPanel(id); host.appendChild(b); }); };
   const switchPanel=p=>{ if(!panels.hasOwnProperty(p)||p===panel) return;
     if(typeof clearSel==="function") clearSel();
-    panels[panel]=active.innerHTML; panel=p; active.innerHTML=panels[panel]||""; undone=[];
+    panels[panel]=active.innerHTML; panel=p; active.innerHTML=panels[panel]||""; ensureLayers(); undone=[];
     renderPanelTabs(); save(); refresh(); };
 
   const toSvg=e=>{ const p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; const q=p.matrixTransform(svg.getScreenCTM().inverse()); return {x:Math.round(q.x*10)/10, y:Math.round(q.y*10)/10}; };
@@ -525,7 +544,7 @@
       inner.appendChild(an); g.appendChild(inner); }
     else g.appendChild(el);
     g._o=p; g._base=base; g._s=base; g._shp=shp; g._x=p.x; g._y=p.y; g._col=color; // resize on drag; twinkle + rec applied on end
-    active.appendChild(g); return g; };
+    activeLayer.appendChild(g); return g; };
 
   // ── Rainbow brush: a ribbon of concentric ROYGBIV bands that follow the stroke (red widest/outer → violet centre) ──
   const RAINBOW=["#ff3b30","#ff9500","#ffd400","#34c759","#0a84ff","#5a4fe0","#af52de"];
@@ -563,12 +582,12 @@
       const maxW=CW*0.62, maxH=CH*0.52; let w=maxW,h=w/aspect; if(h>maxH){ h=maxH; w=h*aspect; }
       const cx=Math.max(w/2,Math.min(CW-w/2,photoPt.x)), cy=Math.max(h/2,Math.min(CH-h/2,photoPt.y));
       const old=active.querySelector("[data-photo]"); if(old) old.remove();
-      active.appendChild(buildPhoto(href,cx,cy,w,h,$("frameStyle").value)); undone=[]; photoPt=null; save(); refresh(); };
+      activeLayer.appendChild(buildPhoto(href,cx,cy,w,h,$("frameStyle").value)); undone=[]; photoPt=null; save(); refresh(); };
       im.src=rd.result; }; rd.readAsDataURL(f); };
   $("frameStyle").onchange=()=>{ const old=active.querySelector("[data-photo]"); if(!old) return;
     const im=old.querySelector("image"), href=im?(im.getAttributeNS(XLINK,"href")||im.getAttribute("xlink:href")):null; if(!href) return;
     let r={}; try{ r=JSON.parse(old.getAttribute("data-rec")||"{}"); }catch(_){}
-    old.remove(); active.appendChild(buildPhoto(href,r.cx,r.cy,r.w,r.h,$("frameStyle").value)); save(); refresh(); };
+    old.remove(); activeLayer.appendChild(buildPhoto(href,r.cx,r.cy,r.w,r.h,$("frameStyle").value)); save(); refresh(); };
 
   // ── Card border: a decorative frame around EVERY page (SVG-safe colours; sits behind the art) ──
   const _bd=(inset,at,rx)=>{ const r=_rc(inset,inset,CW-2*inset,CH-2*inset,at); if(rx){ r.setAttribute("rx",rx); r.setAttribute("ry",rx); } return r; };
@@ -604,7 +623,7 @@
     const fs=Math.max(24,Math.round(width*8)), t=document.createElementNS(SVGNS,"text");
     t.setAttribute("fill",color); t.setAttribute("font-family",fontStack()); t.setAttribute("font-size",fs);
     t.setAttribute("text-anchor","middle"); t.setAttribute("dominant-baseline","middle");
-    active.appendChild(t);                                   // in the tree so we can measure real glyph widths (embedded fonts)
+    activeLayer.appendChild(t);                                   // in the tree so we can measure real glyph widths (embedded fonts)
     // wrap width: keep the centred text on-card — bounded by the card and by the tap point's distance to the nearer edge
     const maxW=Math.max(180, Math.min(CW*0.84, 2*Math.min(textPt.x,CW-textPt.x)-24));
     const meas=document.createElementNS(SVGNS,"tspan"); t.appendChild(meas);
@@ -632,7 +651,8 @@
   let selEl=null, selMode=null, selBase="", selCx=0, selCy=0, selMx=0, selMy=0, selK=1;
   let rk0=1, rd0=1, mmx0=0, mmy0=0, mp0=null;
   const svgEl=(n,a)=>{ const el=document.createElementNS(SVGNS,n); for(const k in a) el.setAttribute(k,a[k]); return el; };
-  const topMark=t=>{ while(t && t!==svg && t.parentNode!==active) t=t.parentNode; return (t&&t.parentNode===active)?t:null; };
+  const inLayer=el=>!!(el && el.getAttribute && el.getAttribute("data-layer"));   // a mark's parent is a layer group
+  const topMark=t=>{ while(t && t!==svg && !inLayer(t.parentNode)) t=t.parentNode; return inLayer(t&&t.parentNode)?t:null; };
   const canvasBBox=el=>{ let bb; try{ bb=el.getBBox(); }catch(_){ return null; } if(!bb || (!bb.width && !bb.height)) return null;
     const cm=el.transform && el.transform.baseVal.consolidate(), mat=cm?cm.matrix:svg.createSVGMatrix();
     const pts=[[bb.x,bb.y],[bb.x+bb.width,bb.y],[bb.x+bb.width,bb.y+bb.height],[bb.x,bb.y+bb.height]]
@@ -675,17 +695,17 @@
     if(tool==="text"){ startText(e,p); return; }
     if(tool==="stamp"){ svg.setPointerCapture(e.pointerId); drawing=true; undone=[]; points=[p]; current=makeStamp(p); refresh(); return; }
     svg.setPointerCapture(e.pointerId); drawing=true; undone=[]; points=[p];
-    if(tool==="spray"){ current=document.createElementNS(SVGNS,"g"); const seed=(Math.random()*4294967296)>>>0; current._seed=seed; sprayRng=mulberry32(seed); if(wiggle) current.setAttribute("filter","url(#sprayBoil)"); active.appendChild(current); sprayAt(p); refresh(); return; }
+    if(tool==="spray"){ current=document.createElementNS(SVGNS,"g"); const seed=(Math.random()*4294967296)>>>0; current._seed=seed; sprayRng=mulberry32(seed); if(wiggle) current.setAttribute("filter","url(#sprayBoil)"); activeLayer.appendChild(current); sprayAt(p); refresh(); return; }
     if(tool==="fractal"){ fbase=p; fcount=0; current=document.createElementNS(SVGNS,"g");
-      if(fkind==="Mandelbrot" && fgrow==="loop"){ current.setAttribute("transform","translate(375 500) scale(1000)"); active.appendChild(current); genMandelZoom(current); refresh(); return; }
+      if(fkind==="Mandelbrot" && fgrow==="loop"){ current.setAttribute("transform","translate(375 500) scale(1000)"); activeLayer.appendChild(current); genMandelZoom(current); refresh(); return; }
       if(fkind==="Mandelbrot"){ current.appendChild(mandelImage()); } else { const fp=FRACTALS[fkind]||FRACTALS.Fern; fGrow(current,0,0,0,1,fp.depth,width/160,fp); }
-      active.appendChild(current); fPlace(p); refresh(); return; }
-    if(tool==="rainbow"){ current=makeRainbow(p); if(wiggle) current.setAttribute("filter","url(#sprayBoil)"); active.appendChild(current); refresh(); return; }
+      activeLayer.appendChild(current); fPlace(p); refresh(); return; }
+    if(tool==="rainbow"){ current=makeRainbow(p); if(wiggle) current.setAttribute("filter","url(#sprayBoil)"); activeLayer.appendChild(current); refresh(); return; }
     if(FREEHAND.has(tool)){ current=document.createElementNS(SVGNS,"path"); strokeAttrs(current); current.setAttribute("d",`M ${p.x} ${p.y}`); }
     else if(tool==="line"){ current=document.createElementNS(SVGNS,"line"); strokeAttrs(current); current.setAttribute("x1",p.x); current.setAttribute("y1",p.y); current.setAttribute("x2",p.x); current.setAttribute("y2",p.y); }
     else if(tool==="rect"){ current=document.createElementNS(SVGNS,"rect"); strokeAttrs(current); current._o=p; }
     else { current=document.createElementNS(SVGNS,"ellipse"); strokeAttrs(current); current._o=p; }
-    active.appendChild(current); refresh(); };
+    activeLayer.appendChild(current); refresh(); };
   const move=e=>{
     if(panning){ panX=ps.px-(e.clientX-ps.x)*ps.scale; panY=ps.py-(e.clientY-ps.y)*ps.scale; applyView(); return; }
     if(tool==="move"){ if(!selMode) return; const q=toSvg(e);
@@ -759,10 +779,10 @@
   svg.addEventListener("pointerleave",()=>cursor.setAttribute("opacity","0"));
 
   // ── Undo / redo / clear / new ──
-  $("undo").onclick=()=>{ clearSel(); const els=[...active.children]; if(!els.length) return; undone.push(els[els.length-1]); active.removeChild(els[els.length-1]); save(); refresh(); };
-  $("redo").onclick=()=>{ const el=undone.pop(); if(el){ active.appendChild(el); save(); refresh(); } };
-  $("clearSess").onclick=()=>{ clearSel(); active.innerHTML=""; undone=[]; save(); refresh(); };
-  $("newCanvas").onclick=()=>{ if(!confirm(t("confirm.new","Start a fresh card? This clears all three pages on this device."))) return; clearSel(); panels.front=panels.inside=panels.back=""; committed.innerHTML=""; active.innerHTML=""; undone=[]; panel="front"; cardBg=null; renderPanelTabs(); save(); refresh(); };
+  $("undo").onclick=()=>{ clearSel(); const els=[...activeLayer.children]; if(!els.length) return; undone.push(els[els.length-1]); activeLayer.removeChild(els[els.length-1]); save(); refresh(); };
+  $("redo").onclick=()=>{ const el=undone.pop(); if(el){ activeLayer.appendChild(el); save(); refresh(); } };
+  $("clearSess").onclick=()=>{ clearSel(); active.innerHTML=""; ensureLayers(); undone=[]; save(); refresh(); };
+  $("newCanvas").onclick=()=>{ if(!confirm(t("confirm.new","Start a fresh card? This clears all three pages on this device."))) return; clearSel(); panels.front=panels.inside=panels.back=""; committed.innerHTML=""; active.innerHTML=""; ensureLayers(); undone=[]; panel="front"; cardBg=null; renderPanelTabs(); save(); refresh(); };
 
   // ── Commit ──
   $("commit").onclick=()=>{ if(nContrib>=CAP || !active.children.length) return;
@@ -841,6 +861,7 @@
       meta.panels.push({role, strokes:recEls.map(el=>{ try{ return JSON.parse(el.getAttribute("data-rec")); }catch(_){ return null; } }).filter(Boolean)});
       recEls.forEach(el=>el.removeAttribute("data-rec"));                                     // params live once (in metadata); keep the render clean
       while(src.firstChild) pg.appendChild(src.firstChild);
+      [...pg.children].forEach(g=>{ const l=g.getAttribute&&g.getAttribute("data-layer"); if(l&&LAYER_DEPTH[l]!=null) g.setAttribute("data-depth",String(LAYER_DEPTH[l])); }); // parallax depth per layer, for the opener
       root.appendChild(pg);
     });
     // soft fold crease between pages so the opened card reads as separate pages
@@ -931,7 +952,7 @@
     panels.front =_ser([ _tb(x.border,x.ink), _te(x.emoji,375,355,205), _tt(m.front,375,610,64,x.ink,x.font) ]);
     panels.inside=_ser([ _tb(x.border,x.ink), _tt(m.inside,375,490,48,x.ink,x.font), _te("💛",375,780,64) ]);
     panels.back  =_ser([ _tb(x.border,x.ink) ]);
-    panel="front"; active.innerHTML=panels.front; undone=[]; applyTheme(); renderPanelTabs(); save(); refresh(); $("tmplOverlay").hidden=true; };
+    panel="front"; active.innerHTML=panels.front; ensureLayers(); undone=[]; applyTheme(); renderPanelTabs(); save(); refresh(); $("tmplOverlay").hidden=true; };
   const renderTmplGrid=()=>{ const grid=$("tmplGrid"); if(!grid) return; grid.innerHTML="";
     TEMPLATES.forEach(x=>{ const b=document.createElement("button"); b.className="tcard"; b.type="button";
       b.innerHTML='<span class="tchip">'+x.chip+'</span><span></span>'; b.lastChild.textContent=tmplText(x).label;
@@ -942,7 +963,7 @@
   $("tmplOverlay").onclick=e=>{ if(e.target===$("tmplOverlay")) $("tmplOverlay").hidden=true; };
 
   { const ls=$("langSel"); if(ls){ ls.value=lang; ls.onchange=()=>setLang(ls.value); } }
-  load(); applyLang(); renderPanelTabs(); applyTheme(); setColor(color); applyView(); refresh();
+  load(); ensureLayers(); renderLayerTabs(); applyLang(); renderPanelTabs(); applyTheme(); setColor(color); applyView(); refresh();
 })();
 </script>
 </body>
