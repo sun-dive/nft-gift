@@ -629,6 +629,12 @@
   const FONTS={ round:'"Trebuchet MS","Segoe UI",system-ui,sans-serif', fun:"'ngFredoka','Comic Sans MS',cursive",
     hand:"'ngCaveat','Bradley Hand',cursive", serif:"'ngPlayfair',Georgia,serif",
     bold:"'ngLuckiest',Impact,sans-serif", type:'"Courier New",ui-monospace,monospace' };
+  // Phase 2 — on-chain BMF font atoms (editor key → family + collection txid). A card REFERENCES these by txid;
+  // the opener resolves them from chain → @font-face, so the card carries no woff2. round/type are system fonts.
+  const ATOM={ fun:{family:"ngFredoka",txid:"22a72050606456c17b0656ed4fd87d494f998b8fbb7536ae89a4ee51e2c28758"},
+    hand:{family:"ngCaveat",txid:"172cc9e2afa2699df0469ca52eb4019f41ad75ac663902073425b56fac4c0cd4"},
+    serif:{family:"ngPlayfair",txid:"8c60ea937c8288f9a7316a0812f6dccc3018b55ccba357aed4bdf96edba3645c"},
+    bold:{family:"ngLuckiest",txid:"545c6c0eef2e7834cd8130f134b4895156792239949570f5cc9030c37ef40f66"} };
   const fontKey=()=>($("fontFace")?$("fontFace").value:"round");
   const fontStack=()=>FONTS[fontKey()]||FONTS.round;
   let textPt=null;
@@ -889,8 +895,8 @@
     [["0","0"],["0.5","0.2"],["1","0"]].forEach(([o,op])=>{ const s=document.createElementNS(SVGNS,"stop"); s.setAttribute("offset",o); s.setAttribute("stop-color","#000"); s.setAttribute("stop-opacity",op); lg.appendChild(s); });
     cdefs.appendChild(lg);
     for(let i=1;i<N;i++){ const band=document.createElementNS(SVGNS,"rect"); band.setAttribute("x",i*CW-9); band.setAttribute("y","0"); band.setAttribute("width","18"); band.setAttribute("height",CH); band.setAttribute("fill","url(#crease)"); root.appendChild(band); }
-    const usedF=new Set(); meta.panels.forEach(pn=>pn.strokes.forEach(s=>{ if(s&&s.k==="text"&&FONT_FACE[s.font]) usedF.add(s.font); }));
-    if(usedF.size){ const fst=document.createElementNS(SVGNS,"style"); fst.textContent=[...usedF].map(k=>FONT_FACE[k]).join(""); root.insertBefore(fst, root.firstChild); } // embed ONLY the fonts this card uses → renders anywhere (BMF-atom reuse can replace this later)
+    const usedF=new Set(); meta.panels.forEach(pn=>pn.strokes.forEach(s=>{ if(s&&s.k==="text"&&ATOM[s.font]) usedF.add(s.font); }));
+    if(usedF.size) meta.fonts=[...usedF].map(k=>({family:ATOM[k].family,txid:ATOM[k].txid})); // Phase 2: reference the on-chain BMF font atoms by txid (opener resolves → @font-face) instead of embedding ~140KB of woff2
     const md=document.createElementNS(SVGNS,"metadata"); md.setAttribute("id","nftsale-card"); md.textContent=JSON.stringify(meta);
     root.insertBefore(md, root.firstChild);
     return '<?xml version="1.0" encoding="UTF-8"?>\n'+new XMLSerializer().serializeToString(root);

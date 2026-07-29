@@ -106,6 +106,36 @@
   const PAGEI={front:0,inside:1,back:2};
   const showErr=m=>{ $("err").textContent=m||""; };
 
+  // ── On-chain BMF font atoms: resolve a card's referenced font (by txid) → woff2 → @font-face, cached ──
+  // Build-free: a minimal tx parser pulls the woff2 straight from the atom's outputs (raw or gzip'd). No SDK.
+  const FONT_HOST="https://api.whatsonchain.com/v1/bsv/main/tx/";
+  const _hb=h=>{ h=h.trim(); const b=new Uint8Array(h.length/2); for(let i=0;i<b.length;i++) b[i]=parseInt(h.substr(i*2,2),16); return b; };
+  const _rvi=(b,o)=>{ const n=b[o]; if(n<0xfd) return [n,o+1]; if(n===0xfd) return [b[o+1]|(b[o+2]<<8),o+3]; if(n===0xfe) return [(b[o+1]|(b[o+2]<<8)|(b[o+3]<<16)|(b[o+4]*0x1000000))>>>0,o+5]; let v=0; for(let i=0;i<8;i++) v+=b[o+1+i]*Math.pow(2,8*i); return [v,o+9]; };
+  const _outs=b=>{ let o=4,r=_rvi(b,o),nin=r[0]; o=r[1]; for(let i=0;i<nin;i++){ o+=36; r=_rvi(b,o); o=r[1]+r[0]+4; } r=_rvi(b,o); let nout=r[0]; o=r[1]; const S=[]; for(let i=0;i<nout;i++){ o+=8; r=_rvi(b,o); o=r[1]; S.push(b.subarray(o,o+r[0])); o+=r[0]; } return S; };
+  function* _pushes(s){ let o=0; while(o<s.length){ const op=s[o++]; let n=0; if(op>0&&op<0x4c) n=op; else if(op===0x4c) n=s[o++]; else if(op===0x4d){ n=s[o]|(s[o+1]<<8); o+=2; } else if(op===0x4e){ n=(s[o]|(s[o+1]<<8)|(s[o+2]<<16)|(s[o+3]*0x1000000))>>>0; o+=4; } else continue; if(n){ yield s.subarray(o,o+n); o+=n; } } }
+  const _isW=b=>b.length>16&&b[0]===0x77&&b[1]===0x4f&&b[2]===0x46&&b[3]===0x32;   // 'wOF2'
+  const _gunzip=async b=>{ const ds=new DecompressionStream("gzip"); const w=ds.writable.getWriter(); w.write(b); w.close(); return new Uint8Array(await new Response(ds.readable).arrayBuffer()); };
+  const _b64=bytes=>{ let s=""; const C=0x8000; for(let i=0;i<bytes.length;i+=C) s+=String.fromCharCode.apply(null,bytes.subarray(i,i+C)); return btoa(s); };
+  async function fetchFontB64(txid){
+    const hex=await fetch(FONT_HOST+encodeURIComponent(txid)+"/hex").then(r=>r.ok?r.text():Promise.reject());
+    const b=_hb(hex);
+    for(const s of _outs(b)) for(const p of _pushes(s)){
+      if(_isW(p)) return _b64(p);                                                  // raw woff2
+      if(p.length>200&&p[0]===0x1f&&p[1]===0x8b&&p[2]===0x08){ try{ const o=await _gunzip(p); if(_isW(o)) return _b64(o); }catch(_){} } // gzip'd woff2
+    }
+    throw new Error("no font in "+txid);
+  }
+  const _faces=new Set();
+  const injectFace=(family,b64)=>{ if(_faces.has(family)) return; _faces.add(family); const st=document.createElement("style"); st.textContent="@font-face{font-family:'"+family+"';font-display:swap;src:url(data:font/woff2;base64,"+b64+") format('woff2')}"; document.head.appendChild(st); };
+  async function resolveFonts(list){
+    for(const f of (list||[])){ if(!f||!f.txid||!f.family||_faces.has(f.family)) continue;
+      const ck="nftGift.font."+f.txid; let cached=null; try{ cached=localStorage.getItem(ck); }catch(_){}
+      if(cached){ injectFace(f.family,cached); continue; }
+      try{ const b64=await fetchFontB64(f.txid); injectFace(f.family,b64); try{ localStorage.setItem(ck,b64); }catch(_){} }
+      catch(_){ /* leave the card's fallback font in place */ }
+    }
+  }
+
   const pageSvg=(g,role)=>{ const i=PAGEI[role]||0;
     const s=document.createElementNS(SVGNS,"svg"); s.setAttribute("viewBox",`${i*750} 0 750 1000`);
     s.setAttribute("class","psvg"); s.setAttribute("preserveAspectRatio","xMidYMid meet");
@@ -129,6 +159,7 @@
     $("pBack").replaceChildren(pageSvg(pages.back,"back"));
     // voice message (in the card's <metadata>) → reveal the 🔊 play button
     let cmeta=null; try{ const mn=root.querySelector("metadata"); if(mn) cmeta=JSON.parse(mn.textContent); }catch(_){}
+    if(cmeta && Array.isArray(cmeta.fonts)) resolveFonts(cmeta.fonts);   // Phase 2: fetch referenced BMF font atoms from chain → @font-face (older cards embed their own fonts and skip this)
     const au=cmeta&&cmeta.audio&&cmeta.audio.src, ae=$("cardAudio"), vp=$("voicePlay");
     if(au){ ae.src=au; vp.hidden=false; vp.classList.remove("playing"); } else { vp.hidden=true; try{ae.pause();}catch(_){} ae.removeAttribute("src"); }
     // show it

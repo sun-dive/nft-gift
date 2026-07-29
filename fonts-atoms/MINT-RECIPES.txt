@@ -1,0 +1,45 @@
+FONT-ATOM MINT RECIPES — 3 remaining (Caveat, Playfair, Luckiest)
+Mint each in PharLap. Fees 1 / 1 / 1.  Mint count = 1 (NOT 2!).
+Cover = the .live.svg (animated).  Content file = the .woff2.
+Do NOT paste a leading 📝 into the note — the app adds one.
+License field = the SPDX code exactly as shown.
+=====================================================================
+
+── 1. ngCaveat ─────────────────────────────────────────────────────
+  Content file : ngCaveat.woff2
+  Cover        : ngCaveat.live.svg
+  Token name   : ngCaveat — handwriting (Caveat, OFL)
+  License      : OFL-1.1
+  Fees         : 1 / 1 / 1     Mint count: 1
+
+  Note heading : ngCaveat — handwriting, on-chain (Caveat, OFL-1.1)
+  Note body:
+This isn't a picture of a font — it's the Caveat typeface itself, a warm, bouncy handwriting script, minted as a BMF atom: a reusable building block in the Block Media Format library, living permanently on Bitcoin. BMF media is referenced, not embedded — mint a piece once, compose it into anything, forever. The idea is simple, and a little radical. Today every card and storybook hauls its own copy of a font, the same tens of kilobytes over and over. Instead: mint the font once — right here — and let everything else just point to it by txid. Cards stay feather-light, the type lives once, and because it's on-chain it can never be taken down, gated, paywalled, or rented. Three apps already reference it: nft.gift — personalised, self-animating greeting cards you genuinely own. popstoria.com — living pop-up storybooks that read themselves to you. grafverse.com — a 3D graffiti multiverse. Caveat, by Pablo Impallari, under the SIL Open Font License 1.1 — free to use, his name written into the ledger permanently. Attribution that can never be stripped, because it's welded to the chain. (A Latin glyph subset — the letters, numbers and marks you reach for most.) And the cover? A live, self-animating specimen rendered from this very font. Owned, not claimed.
+  Tags:
+font, typeface, caveat, handwriting, script, woff2, on-chain-font, bmf, block-media-format, ofl, open-font-license, reusable, nft-gift, popstoria, grafverse, owned-not-claimed
+
+── 2. ngPlayfair ───────────────────────────────────────────────────
+  Content file : ngPlayfair.woff2
+  Cover        : ngPlayfair.live.svg
+  Token name   : ngPlayfair — classic serif (Playfair Display, OFL)
+  License      : OFL-1.1
+  Fees         : 1 / 1 / 1     Mint count: 1
+
+  Note heading : ngPlayfair — classic serif, on-chain (Playfair Display, OFL-1.1)
+  Note body:
+This isn't a picture of a font — it's the Playfair Display typeface itself, a high-contrast, elegant transitional serif with real editorial presence, minted as a BMF atom: a reusable building block in the Block Media Format library, living permanently on Bitcoin. BMF media is referenced, not embedded — mint a piece once, compose it into anything, forever. The idea is simple, and a little radical. Today every card and storybook hauls its own copy of a font, the same tens of kilobytes over and over. Instead: mint the font once — right here — and let everything else just point to it by txid. Cards stay feather-light, the type lives once, and because it's on-chain it can never be taken down, gated, paywalled, or rented. Three apps already reference it: nft.gift — personalised, self-animating greeting cards you genuinely own. popstoria.com — living pop-up storybooks that read themselves to you. grafverse.com — a 3D graffiti multiverse. Playfair Display, by Claus Eggers Sørensen, under the SIL Open Font License 1.1 — free to use, his name welded into the ledger forever. Unstrippable credit, because it lives on the chain. (A Latin glyph subset — the letters, numbers and marks you reach for most.) And the cover? A live, self-animating specimen rendered from this very font. Owned, not claimed.
+  Tags:
+font, typeface, playfair-display, serif, display-serif, woff2, on-chain-font, bmf, block-media-format, ofl, open-font-license, reusable, nft-gift, popstoria, grafverse, owned-not-claimed
+
+── 3. ngLuckiest ───────────────────────────────────────────────────
+  Content file : ngLuckiest.woff2
+  Cover        : ngLuckiest.live.svg
+  Token name   : ngLuckiest — chunky display (Luckiest Guy, Apache-2.0)
+  License      : Apache-2.0
+  Fees         : 1 / 1 / 1     Mint count: 1
+
+  Note heading : ngLuckiest — chunky display, on-chain (Luckiest Guy, Apache-2.0)
+  Note body:
+This isn't a picture of a font — it's the Luckiest Guy typeface itself, a chunky, all-caps comic-poster display face, minted as a BMF atom: a reusable building block in the Block Media Format library, living permanently on Bitcoin. BMF media is referenced, not embedded — mint a piece once, compose it into anything, forever. The idea is simple, and a little radical. Today every card and storybook hauls its own copy of a font, the same tens of kilobytes over and over. Instead: mint the font once — right here — and let everything else just point to it by txid. Cards stay feather-light, the type lives once, and because it's on-chain it can never be taken down, gated, paywalled, or rented. Three apps already reference it: nft.gift — personalised, self-animating greeting cards you genuinely own. popstoria.com — living pop-up storybooks that read themselves to you. grafverse.com — a 3D graffiti multiverse, where a face this loud belongs. Luckiest Guy, by Astigmatic (Brian J. Bonislawsky), under the Apache License 2.0 — free to use, his name written into the ledger permanently. (A Latin glyph subset — the letters, numbers and marks you reach for most.) And the cover? A live, self-animating specimen rendered from this very font. Owned, not claimed.
+  Tags:
+font, typeface, luckiest-guy, display, comic, poster, all-caps, woff2, on-chain-font, bmf, block-media-format, apache-2.0, reusable, nft-gift, popstoria, grafverse, owned-not-claimed

@@ -1,0 +1,29 @@
+{
+  "note": "Character-set BMF atoms to mint PUBLIC (encrypt:false, mime font/woff2) via the createEdition engine. Glyph-subsetted woff2. Named ng* → OFL reserved-name compliant. After minting, record each txid; nft.gift + popstoria reference by txid (PART_FILE_REF) instead of embedding. Verify licences/designers before mint.",
+  "atoms": [
+    {
+      "family": "ngFredoka",   "file": "ngFredoka.woff2",  "kb": 15.9,
+      "editorKey": "fun",       "source": "Fredoka",        "designer": "Milena Brandão",
+      "license": "OFL-1.1",     "tokenName": "ngFredoka — rounded display (Fredoka, OFL)",
+      "css": "@font-face{font-family:'ngFredoka';font-display:swap;src:url(<txid>) format('woff2')}"
+    },
+    {
+      "family": "ngCaveat",    "file": "ngCaveat.woff2",   "kb": 50.0,
+      "editorKey": "hand",      "source": "Caveat",         "designer": "Pablo Impallari",
+      "license": "OFL-1.1",     "tokenName": "ngCaveat — handwriting (Caveat, OFL)",
+      "css": "@font-face{font-family:'ngCaveat';font-display:swap;src:url(<txid>) format('woff2')}"
+    },
+    {
+      "family": "ngPlayfair",  "file": "ngPlayfair.woff2", "kb": 22.7,
+      "editorKey": "serif",     "source": "Playfair Display","designer": "Claus Eggers Sørensen",
+      "license": "OFL-1.1",     "tokenName": "ngPlayfair — classic serif (Playfair Display, OFL)",
+      "css": "@font-face{font-family:'ngPlayfair';font-display:swap;src:url(<txid>) format('woff2')}"
+    },
+    {
+      "family": "ngLuckiest",  "file": "ngLuckiest.woff2", "kb": 17.0,
+      "editorKey": "bold",      "source": "Luckiest Guy",   "designer": "Astigmatic (Brian J. Bonislawsky)",
+      "license": "Apache-2.0",  "tokenName": "ngLuckiest — chunky display (Luckiest Guy, Apache-2.0)",
+      "css": "@font-face{font-family:'ngLuckiest';font-display:swap;src:url(<txid>) format('woff2')}"
+    }
+  ]
+}
