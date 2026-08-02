@@ -1,3 +1,4 @@
+// © BSV Association — Licensed under the Open BSV License Version 6 (see LICENSE).
 // nft.gift — the keepsake wallet (Phase 0: foundation).
 //
 // Self-custody, never custodial: the key is generated on YOUR device, encrypted

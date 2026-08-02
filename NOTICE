@@ -1,0 +1,45 @@
+nft.gift — NOTICE
+Copyright © 2026 sun-dive
+
+This product includes / references third-party work. These components are NOT
+our code; they are used unmodified under their own licences. Per-file licences
+for our own code, and the full texts we author under, are in LICENSE.
+
+-------------------------------------------------------------------------------
+
+qrcodegen — QR Code generator library (TypeScript)
+    © Project Nayuki. Licensed under the MIT License.
+    Present unmodified at wallet-src/qrcodegen.ts, which carries the full MIT
+    text in its own header. We call it (via wallet-src/qr.ts); we do not
+    relicense it. Source: https://www.nayuki.io/page/qr-code-generator-library
+
+@bsv/sdk — the BSV SDK (BRC-100 wallet SDK)
+    © BSV Association. Licensed under the Open BSV License.
+    A dependency we bundle and call from the wallet code. We do NOT port or
+    modify it. It is present in compiled form inside immortalize/wallet.bundle.js.
+    Source: https://github.com/bitcoin-sv/ts-sdk
+
+Fonts — referenced from chain, NOT bundled here
+    The card maker pulls typefaces at runtime from the BSV blockchain as BMF
+    font atoms (by txid → woff2 → @font-face). Each font is a separate on-chain
+    mint carrying its own licence + designer credit; none of the .woff2 ship in
+    this repository. They are:
+      · Fredoka        — Milena Brandão            — OFL-1.1
+      · Caveat         — Pablo Impallari           — OFL-1.1
+      · Playfair Display — Claus Eggers Sørensen   — OFL-1.1
+      · Luckiest Guy   — Astigmatic (B. J. Bonislawsky) — Apache-2.0
+
+-------------------------------------------------------------------------------
+
+Provenance
+    nft-gift-codebase.tar.gz
+    SHA-256  919b0c79cc419234cbff62eea9bac5627453c5f2ab75e54ebf005714d41a9b76
+
+    Timestamped on the BSV blockchain by a two-transaction genesis mint —
+    All Rights Reserved, unencrypted, authored by sun-dive:
+      TX1  8b62f41dbc071176bcdac108f0815e588bdb5f2d38bdbe1e9b2553861e8b0dbb
+      TX2  073575f633d2487416a03f3e01d9db6c49182c78284cbb08165a305e1661445d
+
+    Anyone can hash the archive pulled from chain and match the SHA-256 above.
+    (The on-chain copy of this NOTICE predates the mint, so it carries no txid —
+    the authoritative record is this repository plus the transactions above.)

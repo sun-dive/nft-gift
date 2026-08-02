@@ -1,4 +1,5 @@
 ---
+# nft.gift — © 2026 sun-dive — Licensed under the Business Source License 1.1 (see LICENSE).
 # cPanel Git™ Version Control deployment for nft.gift — the card maker.
 # In cPanel → Git Version Control: "Update from Remote" then "Deploy HEAD Commit".
 # DEPLOYPATH = the nft.gift document root, relative to $HOME. Confirm in cPanel → Domains.

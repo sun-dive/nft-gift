@@ -1,3 +1,4 @@
+// © BSV Association — Licensed under the Open BSV License Version 6 (see LICENSE).
 // nft.gift — Immortalize a card (Phase 1) + gift it (Phase 2).
 //
 // Pure integration: it calls PharLap's V1 edition covenant + gift-voucher code

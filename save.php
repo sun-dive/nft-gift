@@ -1,4 +1,5 @@
 <?php
+// nft.gift — © 2026 sun-dive — Licensed under the Business Source License 1.1 (see LICENSE).
 // nft.gift — store a shared card (the free tier). Returns {"id":"…"} → link is /open/?c=<id>.
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
